@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pawnai_bob"
+version = "0.0.55"
+description = "A matrix bot named Bob"
+readme = "README.md"
+authors = [
+    { name = "Davide Dal Farra", email = "davide@codref.org" }
+]
+keywords = ["matrix", "openai", "bot"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [
+    "matrix-nio[e2e]>=0.24.0",
+    "Markdown>=3.6",
+    "PyYAML>=6.0.1",
+    "Jinja2",
+    "sqlalchemy",
+    "alembic",
+    "pillow",
+    "openai",
+    "docopt",
+    "typer",
+    "arrow",
+    "python_magic",
+    "nest_asyncio",
+    "pytz",
+    "apscheduler",
+    "psycopg2-binary",
+]
+
+[project.urls]
+"Bug Tracker" = "https://gitlab.com/codref/matrix-bob/-/issues"
+"Website" = "https://codref.org"
+
+[project.scripts]
+bob = "pawnai_bob.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.isort]
+line_length = 88
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "TESTS", "LOCALFOLDER"]
+default_section = "THIRDPARTY"
+known_first_party = ["matrix-bob"]
+known_tests = ["tests"]
+multi_line_output = 3
+include_trailing_comma = true
+combine_as_imports = true

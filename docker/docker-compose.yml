@@ -1,0 +1,62 @@
+#-------------------------------------------------------------------------------
+# CONFIG
+#
+x-config: &config
+
+  # Edit the POSTGRES_* variables if you are not using the db service provided
+  # below, or if you want to use a custom database user.
+
+  # (Optional) Replace 'mathesar_django' with any custom name for the internal
+  # database managed by mathesar web-service
+  POSTGRES_DB: ${POSTGRES_DB:-bob}
+
+  # (Optional) Replace 'mathesar' with any custom username for the
+  # aforementioned database
+  POSTGRES_USER: ${POSTGRES_USER:-bob}
+
+  # (Optional) Replace 'mathesar' with any custom password for the
+  # aforementioned database
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bob}
+
+  # (Optional) Replace '5432' with the port on which postgres is running
+  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+
+services:
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    ulimits:
+       nofile:
+         soft: 65536
+         hard: 65536
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+
+  db:
+    image: pgautoupgrade/pgautoupgrade:17-bookworm
+    # This service needs the config variables defined above.
+    environment: *config
+    # Expose the internal port 5432 only to other containers and not
+    # the underlying host.
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data         
+
+  # matrix-bob:
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/Dockerfile      
+  #   volumes:
+  #     - ../:/app
+  #   command: ["/app/bin/bob"]
+
+volumes:
+  qdrant-data:
+  postgres-data:

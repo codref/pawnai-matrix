@@ -1,0 +1,100 @@
+stages:
+  - maintenance
+  - build
+  - deploy
+
+restart_ollama:
+  stage: maintenance
+  variables:
+    GIT_STRATEGY: none
+    GIT_CHECKOUT: "false"    
+  tags:
+    - ollama
+    - shell
+  script:
+    - sudo systemctl restart ollama
+    - sleep 5
+    - sudo systemctl status ollama
+  when: manual
+
+restart_pawnai_bob:
+  stage: maintenance
+  variables:
+    GIT_STRATEGY: none
+    GIT_CHECKOUT: "false"  
+  tags:
+    - matrix-bob
+    - shell
+  script:
+    - sudo systemctl restart matrix-bob
+    - sleep 5
+    - sudo systemctl status matrix-bob
+  when: manual  
+
+get_pawnai_bob_logs:
+  stage: maintenance
+  variables:
+    GIT_STRATEGY: none
+    GIT_CHECKOUT: "false"  
+  tags:
+    - matrix-bob
+    - shell
+  script:
+    - sudo journalctl -u matrix-bob -n 1000
+  when: manual 
+
+restart_qdrant:
+  stage: maintenance
+  variables:
+    GIT_STRATEGY: none
+    GIT_CHECKOUT: "false"  
+  tags:
+    - matrix-bob
+    - shell
+  script:
+    - sudo systemctl restart docker-qdrant
+    - sleep 5
+    - sudo systemctl status docker-qdrant
+  when: manual  
+
+build_package:
+  stage: build
+  image: python:3.12
+  script:
+    - pip install build twine bump
+    - bump
+    - python -m build
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - git config --global user.name "${GITLAB_USER_NAME}"
+    - git remote set-url origin "https://gitlab-ci-token:${DEPLOY_TOKEN}@gitlab.com/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}.git"
+    - git add .
+    - git commit -m "bump version"
+    - git push -o ci.skip --tags origin HEAD:${CI_COMMIT_REF_NAME}
+  only:
+    - master
+
+deploy:
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+    GIT_CHECKOUT: "false"  
+  tags:
+    - matrix-bob
+    - shell
+  before_script:
+    - |
+      echo "
+      machine gitlab.com
+      login gitlab-ci-token
+      password $CI_JOB_TOKEN
+      " > ~/.netrc 
+  script:
+    - cd /opt/matrix-bob
+    - source .venv/bin/activate
+    - pip install "matrix-bob" --upgrade --index-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi/simple
+    - sudo systemctl restart matrix-bob
+    - sleep 5
+    - sudo systemctl status matrix-bob
+  only:
+    - master
