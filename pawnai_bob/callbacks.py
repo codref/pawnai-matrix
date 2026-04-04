@@ -12,7 +12,7 @@ from nio import (
     UnknownEvent,
 )
 
-from pawnai_bob.commands import SystemCommands, ConversationCommands, VisionCommands
+from pawnai_bob.commands import SystemCommands, ConversationCommands
 from pawnai_bob.utils import make_pill, react_to_event, send_text_to_room, get_related_reply_to_events, get_reply_body, download_event_resources
 from pawnai_bob import client, room, config
 from pawnai_bob.listeners.room_listener import RoomListener
@@ -26,7 +26,6 @@ class Callbacks:
         self.command_prefix = config().get('matrix.command_prefix')
         self.system_commands = SystemCommands()
         self.conversation_commands = ConversationCommands()
-        self.vision_commands = VisionCommands()
         self.room_listener = RoomListener("default")
 
     async def uploaded_file(self, matrix_room: MatrixRoom, event) -> None:
@@ -42,15 +41,9 @@ class Callbacks:
             return        
 
         async with download_event_resources(event) as temp_path:
-            # transcribe audio message
             if event.source["content"]["msgtype"] == "m.audio":
                 await self.room_listener.transcribe_audio_message(
                     matrix_room, event, temp_path)
-            # describe an image
-            elif event.source["content"]["msgtype"] == "m.image":
-                await self.room_listener.describe_image(
-                    matrix_room, event, temp_path)
-            # anything else is a file
             else:
                 await self.room_listener.store_file(matrix_room, event,
                                                     temp_path)
@@ -98,18 +91,16 @@ class Callbacks:
             # Process commands
             if await self.system_commands.process(msg, matrix_room, event):
                 return
-            if await self.vision_commands.process(msg, matrix_room, event):
-                return
             response = await self.conversation_commands.process(
                 msg, matrix_room, event, replies)
             if response:
                 if type(response) == str:
                     # if the flag index-conversation is set, the reponse gets indexed as well!
-                    if room().get(matrix_room)['index-conversation']:
+                    if room().get_index_conversation(matrix_room):
                         # attempt the user mapping
                         sender = event.source.get('sender')
-                        if sender in room().get(matrix_room)['users']:
-                            sender = room().get(matrix_room)['users'][sender]
+                        if sender in room().get_users(matrix_room):
+                            sender = room().get_users(matrix_room)[sender]
 
                         # TODO add multiple documents in batches
                         # store query
@@ -125,7 +116,7 @@ class Callbacks:
                                     'dddd, D of MMMM')
                             },
                         )
-                        room().get(matrix_room)['client'].index_document(
+                        room().get_client(matrix_room).index_document(
                             [document])
                         # store response
                         document = Document(
@@ -140,7 +131,7 @@ class Callbacks:
                                     'dddd, D of MMMM')
                             },
                         )
-                        room().get(matrix_room)['client'].index_document(
+                        room().get_client(matrix_room).index_document(
                             [document])
                 else:
                     return

@@ -37,19 +37,10 @@ storage:
   store_path: "./store"
   temp_path: "./tmp"
 
-qdrant:
-  url: http://localhost:6333
-
-ollama:
-  url: http://localhost:8080
-  default_model: mistral
-  default_prompt: You are Bob the chatbot and you are able to have normal interactions
-
-huggingface:
-  api_key: hf_
-
-vision:
-  default_model: meta-llama/Llama-3.2-11B-Vision-Instruct
+openai:
+  url: http://localhost:4000
+  api_key: ""
+  default_llm_model: pawn-agent
 
 # Logging setup
 logging:

@@ -89,7 +89,7 @@ async def send_text_to_room(
                     "event_id": reply_to_event_id
                 }
             }
-    except:
+    except Exception:
         log.error("Cannot fully process the nested message")
 
     try:
@@ -303,12 +303,6 @@ def get_reply_body(event):
         else:
             return ""
 
-
-def concat_replies_body(events: list) -> str:
-    result = ""
-    for event in events:
-        result += get_reply_body(event) + "\n"
-    return result
 
 
 def _is_reply_message(event: MegolmEvent):

@@ -1,18 +1,13 @@
 import logging
 import re
 import arrow
-import nest_asyncio
-import glob
-import base64
 from functools import wraps
 from datetime import datetime
 from nio import MatrixRoom, RoomMessageText
-from pawnai_bob.utils import send_text_to_room, react_to_event, get_image_url_from_path
-from pawnai_bob import client, room, g, settings, set_debug_message, set_debug_vision, set_debug_whispered, store
-from pawnai_bob.utils import Document
+from pawnai_bob.utils import send_text_to_room, react_to_event
+from pawnai_bob import client, room, set_debug_message, store
 from pawnai_bob.models import RoomMessage
 from pawnai_bob.processors.audio_processor import AudioProcessor
-from pawnai_bob.processors.image_processor import ImageProcessor
 
 
 log = logging.getLogger(__name__)
@@ -56,7 +51,6 @@ class RoomListener:
     def __init__(self, collection_name) -> None:
         self.collection_name = collection_name
         self.audio_processor = AudioProcessor()
-        self.image_processor = ImageProcessor()
 
     @handle_room_errors("Cannot process the message:")
     async def store_message_text(self, matrix_room: MatrixRoom, event: RoomMessageText):
@@ -96,29 +90,7 @@ class RoomListener:
         """
         Store files sent to a room
         """
-
-        # React with a hourglass emoji
-        await react_to_event(
-            client(), matrix_room.room_id, event.event_id, "⏳"
-        )
-        
-        nest_asyncio.apply()
-        reader = SimpleDirectoryReader(
-            input_dir=dir
-        )
-        
-        documents = await reader.aload_data()
-        await send_text_to_room(client(), matrix_room.room_id, f"Indexing {len(documents)} documents...", event=event)
-        room().get_client(matrix_room).index_document(documents)
-        await send_text_to_room(client(), matrix_room.room_id, f"Done indexing all the documents!", event=event)         
-
-    @handle_room_errors("Cannot process the image:")
-    async def describe_image(self, matrix_room: MatrixRoom, event, temp_path):
-        """
-        Query image with vision model and index the result
-        """
-        await self.image_processor.process(matrix_room, event, temp_path)
-            
+        await send_text_to_room(client(), matrix_room.room_id, "File indexing is not available.", event=event)
 
     @handle_room_errors("Cannot process the audio:")
     async def transcribe_audio_message(self, matrix_room: MatrixRoom, event, dir):

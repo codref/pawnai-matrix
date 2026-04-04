@@ -89,9 +89,9 @@ def power_user_function(func):
     async def fn(self, args, matrix_room, event):
         # Import here to avoid circular imports
         from pawnai_bob.utils.chat import send_text_to_room
-        from pawnai_bob import client, settings
-        
-        if event.sender not in settings().power_users:
+        from pawnai_bob import client, config
+
+        if event.sender not in config().get('matrix.power_users', []):
             await send_text_to_room(
                 client(),
                 matrix_room.room_id,

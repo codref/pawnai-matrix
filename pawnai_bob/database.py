@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 class Storage:
     def __init__(self, database_connection_string):
-        self.engine = create_engine(database_connection_string, echo=True)
+        self.engine = create_engine(database_connection_string, echo=False)
         Base.metadata.create_all(self.engine)
         self.session = sessionmaker(self.engine)
 

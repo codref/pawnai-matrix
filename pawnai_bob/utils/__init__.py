@@ -27,7 +27,6 @@ from pawnai_bob.utils.chat import (
     react_to_event,
     get_related_reply_to_events,
     get_reply_body,
-    concat_replies_body,
     download_event_resources,
     get_image_url_from_path
 )
@@ -58,7 +57,6 @@ __all__ = [
     "react_to_event",
     "get_related_reply_to_events",
     "get_reply_body",
-    "concat_replies_body",
     "download_event_resources",
     "get_image_url_from_path",
     # Decorators

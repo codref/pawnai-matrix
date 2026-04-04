@@ -4,6 +4,7 @@
 """
 
 import logging
+from pathlib import Path
 from typing import Optional, Dict, Any
 
 log = logging.getLogger(__name__)
@@ -98,49 +99,31 @@ def get_started_on() -> Any:
     return _started_on
 
 
-def set_debug_message(message: str) -> None:
-    """Set the debug message"""
-    _debug["message"] = message
+def _set_debug(key: str, value: Any) -> None:
+    _debug[key] = value
 
 
-def get_debug_message() -> Optional[str]:
-    """Get the debug message, returns None if not set"""
-    return _debug.get("message")
+def _get_debug(key: str) -> Optional[Any]:
+    return _debug.get(key)
 
 
-def has_debug_message() -> bool:
-    """Check if debug message has been set"""
-    return "message" in _debug
+def _has_debug(key: str) -> bool:
+    return key in _debug
 
 
-def set_debug_vision(data: Any) -> None:
-    """Set the debug vision data"""
-    _debug["vision"] = data
+def set_debug_message(message: str) -> None:    _set_debug("message", message)
+def get_debug_message() -> Optional[str]:       return _get_debug("message")
+def has_debug_message() -> bool:                return _has_debug("message")
 
 
-def get_debug_vision() -> Optional[Any]:
-    """Get the debug vision data, returns None if not set"""
-    return _debug.get("vision")
-
-
-def has_debug_vision() -> bool:
-    """Check if debug vision data has been set"""
-    return "vision" in _debug
-
-
-def set_debug_whispered(text: str) -> None:
-    """Set the debug whispered text"""
-    _debug["whispered"] = text
-
-
-def get_debug_whispered() -> Optional[str]:
-    """Get the debug whispered text, returns None if not set"""
-    return _debug.get("whispered")
-
-
-def has_debug_whispered() -> bool:
-    """Check if debug whispered text has been set"""
-    return "whispered" in _debug
+def _resolve_runtime_path(settings: Configuration, path_value: Optional[str], fallback: str) -> str:
+    """Resolve a runtime path relative to the config file and ensure it exists."""
+    raw_path = path_value or fallback
+    path = Path(raw_path).expanduser()
+    if not path.is_absolute():
+        path = Path(settings.filepath).resolve().parent / path
+    path.mkdir(parents=True, exist_ok=True)
+    return str(path)
 
 
 
@@ -162,6 +145,16 @@ def init(config_file_path: str) -> None:
         
         # Retrieve configuration as dictionary from the database
         _config_dict = get_config_dict(_store.get_session(), _settings.configuration_name)
+        _config_dict['storage.store_path'] = _resolve_runtime_path(
+            _settings,
+            _config_dict.get('storage.store_path'),
+            "./store",
+        )
+        _config_dict['storage.temp_path'] = _resolve_runtime_path(
+            _settings,
+            _config_dict.get('storage.temp_path'),
+            "./tmp",
+        )
 
         # Initialize the matrix client
         _client = AsyncClient(

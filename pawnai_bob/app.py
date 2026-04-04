@@ -26,7 +26,7 @@ from nio import (
 )
 
 from pawnai_bob.callbacks import Callbacks
-from pawnai_bob import client, g, init, config, set_started_on
+from pawnai_bob import client, init, config, set_started_on
 
 log = logging.getLogger(__name__)
 

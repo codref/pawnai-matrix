@@ -4,6 +4,7 @@ import json
 from nio import (MatrixRoom)
 from sqlalchemy import select, update
 from pawnai_bob.models import Expert, RoomConfiguration
+from pawnai_bob.openai_client import OpenAIClient
 
 log = logging.getLogger(__name__)
 
@@ -66,36 +67,28 @@ class Room:
         """Build configuration dictionary from components"""
         return {
             'client': None,
-            'vision_client': None,
             'expert_id': expert_id,
             'expert_name': expert_name,
             'echo': json_config.get("echo", True),
             'users': json_config.get("users", {}),
             'index-conversation': json_config.get("index-conversation", False),
-            'vision-two-steps': json_config.get("vision-two-steps", False),
         }
 
     def _create_default_configuration(self) -> dict:
         """Create a default configuration"""
         return {
             'client': None,
-            'vision_client': None,
             'expert_id': -1,
             'expert_name': "",
             'echo': True,
             'users': {},
             'index-conversation': False,
-            'vision-two-steps': False,
         }
     
     # Property Getters
     def get_echo(self, matrix_room: MatrixRoom) -> bool:
         """Get echo setting for the room"""
         return self.get(matrix_room)['echo']
-    
-    def get_vision_two_steps(self, matrix_room: MatrixRoom) -> bool:
-        """Get vision-two-steps setting for the room"""
-        return self.get(matrix_room)['vision-two-steps']
     
     def get_index_conversation(self, matrix_room: MatrixRoom) -> bool:
         """Get index-conversation setting for the room"""
@@ -114,12 +107,11 @@ class Room:
         return self.get(matrix_room)['expert_name']
     
     def get_client(self, matrix_room: MatrixRoom):
-        """Get client for the room"""
-        return self.get(matrix_room)['client']
-    
-    def get_vision_client(self, matrix_room: MatrixRoom):
-        """Get vision client for the room"""
-        return self.get(matrix_room)['vision_client']
+        """Get client for the room, lazily initializing it on first access."""
+        conf = self.get(matrix_room)
+        if conf['client'] is None:
+            conf['client'] = OpenAIClient(self.settings, matrix_room.room_id)
+        return conf['client']
     
     def set_echo(self, matrix_room: MatrixRoom, echo):
         """
@@ -127,26 +119,17 @@ class Room:
         """
         current_rc = self.get(matrix_room)
         current_rc["echo"] = echo
-
         self.save_configuration(matrix_room)
-
-    def set_vision_two_steps(self, matrix_room: MatrixRoom, vision_two_steps):
-        """
-        Set echo for the given room
-        """
-        current_rc = self.get(matrix_room)
-        current_rc["vision-two-steps"] = vision_two_steps
-
-        self.save_configuration(matrix_room)        
+        del self.configuration[matrix_room.room_id]
 
     def set_index_conversation(self, matrix_room: MatrixRoom, index_conversation):
         """
-        Set echo for the given room
+        Set index-conversation flag for the given room
         """
         current_rc = self.get(matrix_room)
         current_rc["index-conversation"] = index_conversation
-
-        self.save_configuration(matrix_room)        
+        self.save_configuration(matrix_room)
+        del self.configuration[matrix_room.room_id]
 
     def set_users(self, matrix_room: MatrixRoom, users):
         """
@@ -154,8 +137,8 @@ class Room:
         """
         current_rc = self.get(matrix_room)
         current_rc["users"] = users
-        
         self.save_configuration(matrix_room)
+        del self.configuration[matrix_room.room_id]
 
     def set_expert(self, matrix_room: MatrixRoom, expert_id):
         """
@@ -182,7 +165,8 @@ class Room:
             rc = session.scalar(stmt)
             configuration = json.dumps({
                     "echo": current_rc["echo"],
-                    "users": current_rc["users"]
+                    "users": current_rc["users"],
+                    "index-conversation": current_rc["index-conversation"],
                 })
             if rc is not None:
                 rc.expert_id = current_rc["expert_id"]

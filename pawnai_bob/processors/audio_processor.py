@@ -4,7 +4,7 @@ import arrow
 import glob
 from nio import MatrixRoom
 from pawnai_bob.utils import send_text_to_room, react_to_event, Document
-from pawnai_bob import client, room, settings, set_debug_whispered
+from pawnai_bob import client, room, config
 
 log = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class AudioProcessor:
     @staticmethod
     def _get_command_prefix() -> str:
         """Extract command prefix without special characters."""
-        return re.sub(r'[^\w+]', '', settings().command_prefix)
+        return re.sub(r'[^\w+]', '', config().get('matrix.command_prefix', ''))
 
     @staticmethod
     def _get_mapped_user(event, matrix_room: MatrixRoom) -> str:
