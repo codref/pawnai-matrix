@@ -22,13 +22,11 @@ from pawnai_bob.utils.config import (
 
 from pawnai_bob.utils.chat import (
     send_text_to_room,
-    send_image_to_room,
     make_pill,
     react_to_event,
     get_related_reply_to_events,
     get_reply_body,
     download_event_resources,
-    get_image_url_from_path
 )
 
 from pawnai_bob.utils.decorators import (
@@ -52,13 +50,11 @@ __all__ = [
     "list_config_names",
     # Chat utilities
     "send_text_to_room",
-    "send_image_to_room",
     "make_pill",
     "react_to_event",
     "get_related_reply_to_events",
     "get_reply_body",
     "download_event_resources",
-    "get_image_url_from_path",
     # Decorators
     "matrix_command",
     "power_user_function",

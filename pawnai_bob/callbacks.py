@@ -1,6 +1,4 @@
 import logging
-import arrow
-from pawnai_bob.utils import Document
 
 from nio import (
     InviteMemberEvent,
@@ -14,7 +12,7 @@ from nio import (
 
 from pawnai_bob.commands import SystemCommands, ConversationCommands
 from pawnai_bob.utils import make_pill, react_to_event, send_text_to_room, get_related_reply_to_events, get_reply_body, download_event_resources
-from pawnai_bob import client, room, config
+from pawnai_bob import client, config, room
 from pawnai_bob.listeners.room_listener import RoomListener
 
 log = logging.getLogger(__name__)
@@ -26,7 +24,7 @@ class Callbacks:
         self.command_prefix = config().get('matrix.command_prefix')
         self.system_commands = SystemCommands()
         self.conversation_commands = ConversationCommands()
-        self.room_listener = RoomListener("default")
+        self.room_listener = RoomListener()
 
     async def uploaded_file(self, matrix_room: MatrixRoom, event) -> None:
         """Callback for when a file event is received
@@ -86,7 +84,7 @@ class Callbacks:
 
         if has_command_prefix:
             # Remove the command prefix
-            msg = msg[len(self.command_prefix):]
+            msg = msg[len(self.command_prefix):].lstrip()
 
             # Process commands
             if await self.system_commands.process(msg, matrix_room, event):
@@ -94,50 +92,17 @@ class Callbacks:
             response = await self.conversation_commands.process(
                 msg, matrix_room, event, replies)
             if response:
-                if type(response) == str:
-                    # if the flag index-conversation is set, the reponse gets indexed as well!
-                    if room().get_index_conversation(matrix_room):
-                        # attempt the user mapping
-                        sender = event.source.get('sender')
-                        if sender in room().get_users(matrix_room):
-                            sender = room().get_users(matrix_room)[sender]
-
-                        # TODO add multiple documents in batches
-                        # store query
-                        document = Document(
-                            text=msg,
-                            metadata={
-                                "room":
-                                matrix_room.room_id,
-                                "author":
-                                sender,
-                                "date":
-                                arrow.utcnow().to('Europe/Rome').format(
-                                    'dddd, D of MMMM')
-                            },
-                        )
-                        room().get_client(matrix_room).index_document(
-                            [document])
-                        # store response
-                        document = Document(
-                            text=response,
-                            metadata={
-                                "room":
-                                matrix_room.room_id,
-                                "author":
-                                sender,
-                                "date":
-                                arrow.utcnow().to('Europe/Rome').format(
-                                    'dddd, D of MMMM')
-                            },
-                        )
-                        room().get_client(matrix_room).index_document(
-                            [document])
-                else:
+                if type(response) != str:
                     return
 
         else:
             await self.room_listener.store_message_text(matrix_room, event)
+            if room().get_free_speak(matrix_room):
+                response = await self.conversation_commands.process(
+                    msg, matrix_room, event, replies)
+                if response:
+                    if type(response) != str:
+                        return
 
     async def invite(self, matrix_room: MatrixRoom,
                      event: InviteMemberEvent) -> None:

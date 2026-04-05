@@ -4,7 +4,7 @@ import importlib.metadata
 from nio import MatrixRoom, RoomMessageText
 
 from pawnai_bob.utils import send_text_to_room
-from pawnai_bob.utils.decorators import matrix_command, power_user_function
+from pawnai_bob.utils.decorators import matrix_command
 from pawnai_bob import client, room, config, get_started_on, get_debug_message, has_debug_message
 from pawnai_bob.commands.expert_commands import ExpertCommands
 from pawnai_bob.commands.room_config_commands import RoomConfigCommands
@@ -27,6 +27,9 @@ class SystemCommands:
             matrix_room: The room the command was sent in.
             event: The event describing the command.
         """
+        command = command.strip()
+        if not command:
+            return False
 
         try:
             args = shlex.split(command,
@@ -129,7 +132,6 @@ class SystemCommands:
 
         if 'set' in opts and opts['set']:
             room().get_client(matrix_room).set_prompt(opts['<prompt_text>'])
-            room().get_client(matrix_room).init_chat_engine()
             await send_text_to_room(
                 client(),
                 matrix_room.room_id,
@@ -141,7 +143,6 @@ class SystemCommands:
         elif 'reset' in opts and opts['reset']:
             room().get_client(matrix_room).set_prompt(
                 config().get('openai.default_prompt'))
-            room().get_client(matrix_room).init_chat_engine()
             await send_text_to_room(
                 client(),
                 matrix_room.room_id,
@@ -176,7 +177,6 @@ class SystemCommands:
             if '<tokens>' in opts and opts['<tokens>']:
                 room().get_client(matrix_room).set_context_length(
                     int(opts['<tokens>']))
-                room().get_client(matrix_room).init_chat_engine()
                 await send_text_to_room(
                     client(),
                     matrix_room.room_id,
@@ -200,4 +200,3 @@ class SystemCommands:
                                     notice=True,
                                     event=event)
         return True
-

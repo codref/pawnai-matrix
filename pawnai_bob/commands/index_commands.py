@@ -1,5 +1,3 @@
-from nio import MatrixRoom, RoomMessageText
-
 from pawnai_bob.utils import send_text_to_room
 from pawnai_bob.utils.decorators import matrix_command, power_user_function
 from pawnai_bob import client, room, config
@@ -38,4 +36,3 @@ class IndexCommands:
                 notice=True,
                 event=event)
         return True
-

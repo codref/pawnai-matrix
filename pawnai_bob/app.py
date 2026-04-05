@@ -1,14 +1,9 @@
-import glob
 import os
 import asyncio
 import nest_asyncio
 import datetime
 import logging
 from time import sleep
-from pytz import utc
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
-from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiohttp import ClientConnectionError, ServerDisconnectedError
 from nio import (
     InviteMemberEvent,
@@ -27,6 +22,7 @@ from nio import (
 
 from pawnai_bob.callbacks import Callbacks
 from pawnai_bob import client, init, config, set_started_on
+from pawnai_bob.settings import resolve_config_path
 
 log = logging.getLogger(__name__)
 
@@ -117,7 +113,7 @@ class App():
 
         # Initialize Globals
         if config_file_path is None:
-            config_file_path = "config.yaml"
+            config_file_path = str(resolve_config_path())
 
         init(config_file_path)
 

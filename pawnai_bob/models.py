@@ -1,11 +1,9 @@
-from typing import List
 from typing import Optional
 from sqlalchemy import ForeignKey
-from sqlalchemy import String, Integer, Float, Text, JSON, DateTime
+from sqlalchemy import String, Text, JSON, DateTime
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
 from datetime import datetime
 
 class Base(DeclarativeBase):
@@ -26,7 +24,9 @@ class RoomConfiguration(Base):
     __tablename__ = "room"
     id: Mapped[int] = mapped_column(primary_key=True)
     room_id: Mapped[str] = mapped_column(String())
-    expert_id: Mapped[int] = mapped_column(ForeignKey("expert.id"))
+    expert_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("expert.id"), nullable=True
+    )
     configuration: Mapped[str] = mapped_column(String())
 
     def __repr__(self) -> str:
@@ -44,12 +44,12 @@ class BotConfiguration(Base):
         # Get a configuration value
         config = session.query(BotConfiguration).filter_by(
             config_name="default", 
-            key="openai_url"
+            key="openai.url"
         ).first()
         print(config.value)
         
         # Using the helper method
-        value = BotConfiguration.get_value(session, "openai_url", "default")
+        value = BotConfiguration.get_value(session, "openai.url", "default")
     """
     __tablename__ = "bot_configuration"
     

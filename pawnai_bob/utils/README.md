@@ -47,7 +47,6 @@ Chat and messaging helper functions for Matrix interactions.
 
 **Key Functions:**
 - `send_text_to_room()` - Send text messages with markdown support
-- `send_image_to_room()` - Send image messages
 - `make_pill()` - Create user mention pills
 - `react_to_event()` - Add reactions to messages
 - `get_related_reply_to_events()` - Get reply chain

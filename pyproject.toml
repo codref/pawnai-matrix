@@ -32,6 +32,7 @@ dependencies = [
     "pytz",
     "apscheduler",
     "psycopg2-binary",
+    "pydantic-settings>=2.0.0",
 ]
 
 [project.urls]

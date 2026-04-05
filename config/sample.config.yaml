@@ -2,11 +2,10 @@
 # Below you will find various config sections and options
 # Default values are shown
 
-# The string to prefix messages with to talk to the bot in group chats
-command_prefix: "!bob"
-
 # Options for connecting to the bot's Matrix account
 matrix:
+  # The string to prefix messages with to talk to the bot in group chats
+  command_prefix: "!bob"
   inviters: 
     - "@user:matrix.org"
   power_users:
@@ -41,6 +40,9 @@ openai:
   url: http://localhost:4000
   api_key: ""
   default_llm_model: pawn-agent
+  # Optional. If omitted, audio transcription falls back to default_llm_model.
+  # Set this only when your API key can access a dedicated transcription model.
+  # audio_transcription_model: pawn-transcribe
 
 # Logging setup
 logging:

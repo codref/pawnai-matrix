@@ -25,15 +25,16 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from pawnai_bob.models import Base, BotConfiguration
+from pawnai_bob.models import Base
 from pawnai_bob.utils import populate_defaults, get_config_dict
 from pawnai_bob.configuration import Configuration
+from pawnai_bob.settings import resolve_config_path
 
 
 def get_database_url():
     """Read database URL from config.yaml"""
     try:
-        config = Configuration("./bin/config.yaml")
+        config = Configuration(str(resolve_config_path()))
         return config.database_connection_string
     except Exception as e:
         print(f"Warning: Could not read config.yaml: {e}")
@@ -66,11 +67,11 @@ def main():
         
         # Print some sample values
         sample_keys = [
-            "openai_url",
-            "qdrant_url",
-            "vision_client",
-            "command_prefix",
-            "tasks_path"
+            "openai.url",
+            "matrix.user_id",
+            "matrix.command_prefix",
+            "storage.store_path",
+            "storage.temp_path",
         ]
         
         for key in sample_keys:

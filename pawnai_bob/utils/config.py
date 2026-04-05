@@ -23,13 +23,14 @@ Usage example:
     # Load configuration from database as dictionary
     with Session(engine) as session:
         config_dict = get_config_dict(session, "production")
-        print(f"OpenAI URL: {config_dict['openai_url']}")
+        print(f"OpenAI URL: {config_dict['openai.url']}")
 """
 
 import json
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from sqlalchemy.orm import Session
 from pawnai_bob.models import BotConfiguration
+from pawnai_bob.settings import BobSettings
 
 
 def get_default_configuration() -> Dict[str, Any]:
@@ -39,35 +40,7 @@ def get_default_configuration() -> Dict[str, Any]:
     Returns:
         Dictionary of default configuration values
     """
-    return {
-        # Storage
-        "storage.store_path": "./store",
-        "storage.temp_path": "./tmp",
-
-        # Vision
-        "vision.default_query": "You are a verbose chatbot. Describe the attached image in detail.",
-
-        # OpenAI (litellm proxy / PawnAgent)
-        "openai.url": "http://localhost:4000",
-        "openai.api_key": "",
-        "openai.default_llm_model": "pawn-agent",
-        "openai.llm_models": ["pawn-agent"],
-        "openai.default_prompt": "You are Bob the chatbot and you are able to have normal interactions",
-        "openai.default_context_length": 1500,
-
-        # Matrix
-        "matrix.user_id": "@bot:matrix.org",
-        "matrix.user_password": None,
-        "matrix.user_token": None,
-        "matrix.device_id": "DEVICE_ID",
-        "matrix.device_name": "nio-template",
-        "matrix.homeserver_url": "https://matrix.org",
-        "matrix.command_prefix": "!c ",
-
-        # User lists
-        "matrix.inviters": [],
-        "matrix.power_users": [],
-    }
+    return BobSettings().to_runtime_flat_dict()
 
 
 def populate_defaults(session: Session, config_name: str = "default") -> None:
@@ -107,30 +80,16 @@ def populate_config_from_yaml(
             populate_config_from_yaml(session, "config.yaml", "production")
             session.commit()
     """
-    import yaml
     import os
 
     if not os.path.isfile(yaml_file_path):
         raise ValueError(f"Config file '{yaml_file_path}' does not exist")
 
-    with open(yaml_file_path) as file_stream:
-        yaml_config = yaml.safe_load(file_stream.read())
-
-    def _flatten(d: dict, prefix: str = "") -> dict:
-        result = {}
-        for k, v in d.items():
-            key = f"{prefix}.{k}" if prefix else k
-            if isinstance(v, dict):
-                result.update(_flatten(v, key))
-            else:
-                result[key] = v
-        return result
-
-    flattened = _flatten(yaml_config)
+    flattened = BobSettings.from_yaml(yaml_file_path).to_runtime_flat_dict()
     defaults = get_default_configuration()
 
-    for key in defaults:
-        value = flattened.get(key, defaults[key])
+    for key, default_value in defaults.items():
+        value = flattened.get(key, default_value)
         BotConfiguration.set_value(session, key, value, config_name)
 
 
@@ -148,7 +107,7 @@ def get_config_dict(session: Session, config_name: str = "default") -> Dict[str,
     Example:
         with Session(engine) as session:
             config = get_config_dict(session, "production")
-            print(f"OpenAI URL: {config['openai_url']}")
+            print(f"OpenAI URL: {config['openai.url']}")
     """
     configs = session.query(BotConfiguration).filter_by(config_name=config_name).all()
     
@@ -183,7 +142,7 @@ def get_value(
     
     Example:
         with Session(engine) as session:
-            url = get_value(session, "openai_url", "production")
+            url = get_value(session, "openai.url", "production")
     """
     return BotConfiguration.get_value(session, key, config_name, default)
 
@@ -208,7 +167,7 @@ def set_value(
     
     Example:
         with Session(engine) as session:
-            set_value(session, "openai_url", "http://localhost:11434/v1")
+            set_value(session, "openai.url", "http://localhost:11434/v1")
             session.commit()
     """
     return BotConfiguration.set_value(session, key, value, config_name)
@@ -255,4 +214,3 @@ def list_config_names(session: Session) -> list[str]:
     
     result = session.query(distinct(BotConfiguration.config_name)).all()
     return [row[0] for row in result]
-

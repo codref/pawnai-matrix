@@ -40,7 +40,6 @@ All utility modules are now organized under `pawnai_bob/utils/`:
 
 - **`chat.py`**: Chat and messaging helper functions (previously `chat_functions.py`)
   - `send_text_to_room()`
-  - `send_image_to_room()`
   - `make_pill()`
   - `react_to_event()`
   - `get_related_reply_to_events()`

@@ -1,5 +1,4 @@
 import json
-from nio import MatrixRoom, RoomMessageText
 from sqlalchemy import select
 
 from pawnai_bob.utils import send_text_to_room
@@ -16,16 +15,32 @@ class RoomConfigCommands:
         """
         Usage:
           room get expert
+          room get free-speak
           room set expert [<expert_name>]
+          room set free-speak (on|off)
           room unset expert
           room add user <matrix_user> <name>
           room rm user <matrix_user>
           room get users
           room set users
           room set echo (on|off)
-          room set index-conversation (on|off)
         """
-        if "echo" in opts and opts['echo']:
+        if "free-speak" in opts and opts['free-speak']:
+            if 'get' in opts and opts['get']:
+                await send_text_to_room(client(),
+                                        matrix_room.room_id,
+                                        f"Flag `free-speak` is {room().get_free_speak(matrix_room)}",
+                                        notice=True,
+                                        event=event)
+            elif 'set' in opts and opts['set']:
+                flag = True if opts['on'] else False
+                room().set_free_speak(matrix_room, flag)
+                await send_text_to_room(client(),
+                                        matrix_room.room_id,
+                                        f"Flag `free-speak` is now {flag}",
+                                        notice=True,
+                                        event=event)
+        elif "echo" in opts and opts['echo']:
             flag = True if opts['on'] else False
             room().set_echo(matrix_room, flag)
             await send_text_to_room(client(),
@@ -33,15 +48,6 @@ class RoomConfigCommands:
                                     f"Flag `echo` is now {flag}",
                                     notice=True,
                                     event=event)
-        if "index-conversation" in opts and opts['index-conversation']:
-            flag = True if opts['on'] else False
-            room().set_index_conversation(matrix_room, flag)
-            await send_text_to_room(client(),
-                                    matrix_room.room_id,
-                                    f"Flag `index-conversation` is now {flag}",
-                                    notice=True,
-                                    event=event)
-
         elif 'users' in opts and opts['users']:
             if 'get' in opts and opts['get']:
                 await send_text_to_room(client(),

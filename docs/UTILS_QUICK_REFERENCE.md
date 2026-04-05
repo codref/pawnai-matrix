@@ -111,14 +111,11 @@ class MyCommands:
 
 ### `utils.chat`
 - `send_text_to_room(client, room_id, message, ...)` - Send text message
-- `send_image_to_room(client, room_id, image)` - Send image
 - `make_pill(user_id, displayname)` - Create user mention
 - `react_to_event(client, room_id, event_id, reaction)` - Add reaction
 - `get_related_reply_to_events(client, room, event)` - Get reply chain
 - `get_reply_body(event)` - Extract reply content
-- `concat_replies_body(events)` - Concatenate reply bodies
 - `download_event_resources(event)` - Download event attachments
-- `get_image_url_from_path(path)` - Get image URL from path
 
 ### `utils.decorators`
 - `@matrix_command` - Add docopt parsing to commands

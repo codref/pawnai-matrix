@@ -1,21 +1,14 @@
 import logging
-import os
 import re
 import tempfile
 import aiofiles
-import aiofiles.os
-import glob
-import base64
-import mimetypes
 from contextlib import asynccontextmanager
 from typing import Optional, Union
-from PIL import Image
-import magic
 from markdown import markdown
 from nio import (AsyncClient, ErrorResponse, MatrixRoom, MegolmEvent, Response,
                  RoomSendResponse, SendRetryError, RoomMessageFile,
                  RoomMessageAudio, RoomEncryptedAudio, RoomMessageImage,
-                 RoomEncryptedImage, RoomEncryptedFile, crypto, UploadResponse)
+                 RoomEncryptedImage, RoomEncryptedFile, crypto)
 
 
 log = logging.getLogger(__name__)
@@ -102,95 +95,6 @@ async def send_text_to_room(
     except SendRetryError:
         log.exception(f"Unable to send message response to {room_id}")
 
-async def send_image_to_room(client: AsyncClient, room_id: str, image):
-    """
-    Send image to room.
-    Arguments:
-    ---------
-    client : Client
-    room_id : str
-    image : str, file name of image
-
-    This is a working example for a JPG image.
-        "content": {
-            "body": "someimage.jpg",
-            "info": {
-                "size": 5420,
-                "mimetype": "image/jpeg",
-                "thumbnail_info": {
-                    "w": 100,
-                    "h": 100,
-                    "mimetype": "image/jpeg",
-                    "size": 2106
-                },
-                "w": 100,
-                "h": 100,
-                "thumbnail_url": "mxc://example.com/SomeStrangeThumbnailUriKey"
-            },
-            "msgtype": "m.image",
-            "url": "mxc://example.com/SomeStrangeUriKey"
-        }
-
-
-    """
-
-    mime_type = magic.from_file(image, mime=True)  # e.g. "image/jpeg"
-
-    if not mime_type.startswith("image/"):
-        log.error("Drop message because file does not have an image mime type.")
-        return
-
-    im = Image.open(image)
-    (width, height) = im.size  # im.size returns (width,height) tuple
-
-    # first do an upload of image, then send URI of upload to room
-    file_stat = await aiofiles.os.stat(image)
-    async with aiofiles.open(image, "r+b") as f:
-        resp, decryption_keys = await client.upload(
-            f,
-            content_type=mime_type,  # application/pdf
-            filename=os.path.basename(image),
-            filesize=file_stat.st_size,
-            encrypt=True,
-        )
-
-    if isinstance(resp, UploadResponse):
-        log.info("Image was uploaded successfully to server.")
-    else:
-        await send_text_to_room(
-            client,
-            room_id,
-            f"Failed to upload image. Failure response: {resp}"
-        )        
-        log.error(f"Failed to upload image. Failure response: {resp}")        
-
-    content = {
-        "body": os.path.basename(image),  # descriptive title
-        "info": {
-            "size": file_stat.st_size,
-            "mimetype": mime_type,
-            # "thumbnail_info": None,  # TODO
-            "w": width,  # width in pixel
-            "h": height,  # height in pixel
-            # "thumbnail_url": None,  # TODO
-        },
-        "msgtype": "m.image",
-        "url": resp.content_uri,
-        "file": {
-            "url": resp.content_uri,
-            "key": decryption_keys["key"],
-            "iv": decryption_keys["iv"],
-            "hashes": decryption_keys["hashes"],
-            "v": decryption_keys["v"],
-        },
-    }
-
-    try:
-        await client.room_send(room_id, message_type="m.room.message", content=content, ignore_unverified_devices=True)
-    except SendRetryError:
-        log.exception(f"Image send of file {image} failed. {room_id}")
-
-
 def make_pill(user_id: str, displayname: str = None) -> str:
     """Convert a user ID (and optionally a display name) to a formatted user 'pill'
 
@@ -247,30 +151,6 @@ async def react_to_event(
         "m.reaction",
         content,
         ignore_unverified_devices=True,
-    )
-
-
-async def decryption_failure(self, room: MatrixRoom,
-                             event: MegolmEvent) -> None:
-    """Callback for when an event fails to decrypt. Inform the user"""
-    log.error(
-        f"Failed to decrypt event '{event.event_id}' in room '{room.room_id}'!"
-        f"\n\n"
-        f"Tip: try using a different device ID in your config file and restart."
-        f"\n\n"
-        f"If all else fails, delete your store directory and let the bot recreate "
-        f"it (your reminders will NOT be deleted, but the bot may respond to existing "
-        f"commands a second time).")
-
-    user_msg = (
-        "Unable to decrypt this message. "
-        "Check whether you've chosen to only encrypt to trusted devices.")
-
-    await send_text_to_room(
-        self.client,
-        room.room_id,
-        user_msg,
-        reply_to_event_id=event.event_id,
     )
 
 
@@ -348,19 +228,3 @@ async def download_event_resources(event):
         yield temp_path
     finally:
         temp_path_instance.cleanup()
-
-def get_image_url_from_path(path, pattern = "/*", allowed_extensions=[".png", ".jpg", ".jpeg"]):
-    """
-    Retrieves the first image matching the 
-    """
-
-    # TODO having multiple files in here is not very smart, manage this loop in a better way
-    for filepath in glob.iglob(f"{path}/{pattern}"):
-        image_extension =  os.path.splitext(filepath)[1]
-        mime_type = mimetypes.guess_type(filepath)[0]
-        if image_extension in allowed_extensions:
-            with open(filepath, "rb") as image_file:
-                encoded_image = base64.b64encode(image_file.read()).decode("ascii")
-                return f"data:{mime_type};base64,{encoded_image}"
-        
-    return None

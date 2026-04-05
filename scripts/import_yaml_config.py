@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from pawnai_bob.models import Base, BotConfiguration
+from pawnai_bob.models import Base
 from pawnai_bob.configuration import Configuration
 from pawnai_bob.utils import populate_config_from_yaml, get_config_dict
 
@@ -83,7 +83,6 @@ def main():
             "matrix.user_id",
             "matrix.homeserver_url",
             "openai.url",
-            "qdrant.url",
             "storage.database",
             "storage.store_path",
             "storage.temp_path"

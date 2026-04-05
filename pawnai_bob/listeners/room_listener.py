@@ -1,10 +1,9 @@
 import logging
-import re
 import arrow
 from functools import wraps
 from datetime import datetime
 from nio import MatrixRoom, RoomMessageText
-from pawnai_bob.utils import send_text_to_room, react_to_event
+from pawnai_bob.utils import send_text_to_room
 from pawnai_bob import client, room, set_debug_message, store
 from pawnai_bob.models import RoomMessage
 from pawnai_bob.processors.audio_processor import AudioProcessor
@@ -48,8 +47,7 @@ class RoomListener:
     Listen for messages and index the received content.
     """
 
-    def __init__(self, collection_name) -> None:
-        self.collection_name = collection_name
+    def __init__(self) -> None:
         self.audio_processor = AudioProcessor()
 
     @handle_room_errors("Cannot process the message:")

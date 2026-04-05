@@ -14,8 +14,6 @@ class OpenAIClient:
         self.prompt = settings.get('openai.default_prompt', '')
         self.context_length = settings.get('openai.default_context_length', 1500)
         self.chat_mode = 'default'
-        self.embed_model = ''
-        self.collection_name = 'n/a'
 
         self._openai = OpenAI(
             base_url=settings.get('openai.url', 'http://localhost:4000'),
@@ -44,35 +42,11 @@ class OpenAIClient:
     def set_llm_model(self, model: str):
         self.llm_model = model
 
-    def set_model(self, model: str):
-        self.llm_model = model
-
     def set_context_length(self, token_limit: int):
         self.context_length = token_limit
 
     def set_chat_mode(self, mode: str):
         self.chat_mode = mode
-
-    def set_embed_model(self, model: str):
-        pass
-
-    def set_collection_name(self, name: str):
-        pass
-
-    def set_chunk_size(self, size: int):
-        pass
-
-    def init_chat_engine(self):
-        pass
-
-    def init_llm(self):
-        pass
-
-    def init_index(self):
-        pass
-
-    def index_document(self, documents):
-        pass
 
     def toJSON(self) -> str:
         return json.dumps({

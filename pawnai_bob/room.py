@@ -2,7 +2,7 @@ import logging
 import json
 
 from nio import (MatrixRoom)
-from sqlalchemy import select, update
+from sqlalchemy import select
 from pawnai_bob.models import Expert, RoomConfiguration
 from pawnai_bob.openai_client import OpenAIClient
 
@@ -51,7 +51,7 @@ class Room:
 
     def _fetch_expert_if_exists(self, session, expert_id) -> Expert | None:
         """Fetch expert by ID, raises if expert_id is valid but expert not found"""
-        if expert_id == -1:
+        if expert_id in (-1, None):
             return None
         
         stmt = select(Expert).filter(Expert.id == expert_id)
@@ -63,15 +63,15 @@ class Room:
             )
         return expert
 
-    def _build_configuration(self, expert_id: int, expert_name: str, json_config: dict) -> dict:
+    def _build_configuration(self, expert_id: int | None, expert_name: str, json_config: dict) -> dict:
         """Build configuration dictionary from components"""
         return {
             'client': None,
-            'expert_id': expert_id,
+            'expert_id': expert_id if expert_id is not None else -1,
             'expert_name': expert_name,
             'echo': json_config.get("echo", True),
+            'free_speak': json_config.get("free_speak", False),
             'users': json_config.get("users", {}),
-            'index-conversation': json_config.get("index-conversation", False),
         }
 
     def _create_default_configuration(self) -> dict:
@@ -81,8 +81,8 @@ class Room:
             'expert_id': -1,
             'expert_name': "",
             'echo': True,
+            'free_speak': False,
             'users': {},
-            'index-conversation': False,
         }
     
     # Property Getters
@@ -90,13 +90,13 @@ class Room:
         """Get echo setting for the room"""
         return self.get(matrix_room)['echo']
     
-    def get_index_conversation(self, matrix_room: MatrixRoom) -> bool:
-        """Get index-conversation setting for the room"""
-        return self.get(matrix_room)['index-conversation']
-    
     def get_users(self, matrix_room: MatrixRoom) -> dict:
         """Get users mapping configuration for the room"""
         return self.get(matrix_room)['users']
+
+    def get_free_speak(self, matrix_room: MatrixRoom) -> bool:
+        """Get free speak setting for the room"""
+        return self.get(matrix_room)['free_speak']
     
     def get_expert_id(self, matrix_room: MatrixRoom) -> int:
         """Get expert ID for the room"""
@@ -122,21 +122,21 @@ class Room:
         self.save_configuration(matrix_room)
         del self.configuration[matrix_room.room_id]
 
-    def set_index_conversation(self, matrix_room: MatrixRoom, index_conversation):
-        """
-        Set index-conversation flag for the given room
-        """
-        current_rc = self.get(matrix_room)
-        current_rc["index-conversation"] = index_conversation
-        self.save_configuration(matrix_room)
-        del self.configuration[matrix_room.room_id]
-
     def set_users(self, matrix_room: MatrixRoom, users):
         """
         Set the users mapping configuration
         """
         current_rc = self.get(matrix_room)
         current_rc["users"] = users
+        self.save_configuration(matrix_room)
+        del self.configuration[matrix_room.room_id]
+
+    def set_free_speak(self, matrix_room: MatrixRoom, free_speak):
+        """
+        Set free speak for the given room
+        """
+        current_rc = self.get(matrix_room)
+        current_rc["free_speak"] = free_speak
         self.save_configuration(matrix_room)
         del self.configuration[matrix_room.room_id]
 
@@ -165,21 +165,19 @@ class Room:
             rc = session.scalar(stmt)
             configuration = json.dumps({
                     "echo": current_rc["echo"],
+                    "free_speak": current_rc["free_speak"],
                     "users": current_rc["users"],
-                    "index-conversation": current_rc["index-conversation"],
                 })
+            expert_id = current_rc["expert_id"]
+            persisted_expert_id = None if expert_id in (-1, None) else expert_id
             if rc is not None:
-                rc.expert_id = current_rc["expert_id"]
+                rc.expert_id = persisted_expert_id
                 rc.configuration = configuration
             else:
                 new_rc = RoomConfiguration(
                     room_id=matrix_room.room_id,
-                    expert_id=current_rc["expert_id"],
+                    expert_id=persisted_expert_id,
                     configuration=configuration
                     )
                 session.add(new_rc)
             session.commit()
-
-        
-                   
-

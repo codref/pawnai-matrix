@@ -1,5 +1,3 @@
-import json
-from nio import MatrixRoom, RoomMessageText
 from sqlalchemy import select
 
 from pawnai_bob.utils import send_text_to_room

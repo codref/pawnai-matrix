@@ -43,7 +43,6 @@ class ConversationCommands:
 
             # If the message is a reply, use the replied messages as injected context
             if replies_body != "":
-                # message = "Consider just the following conversation: " + concat_replies_body(replies) + ".\n" + message
                 message = f"{replies_body}\n{message}"
 
             response = room().get_client(matrix_room).chat_engine.chat(

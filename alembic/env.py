@@ -25,8 +25,9 @@ from pawnai_bob.models import Base
 target_metadata = Base.metadata
 
 from pawnai_bob.configuration import Configuration
-import os
-settings = Configuration("./bin/config.yaml")
+from pawnai_bob.settings import resolve_config_path
+
+settings = Configuration(str(resolve_config_path()))
 config.set_main_option('sqlalchemy.url', settings.database_connection_string)
 
 # other values from the config, defined by the needs of env.py,
