@@ -5,7 +5,7 @@ from nio import MatrixRoom, RoomMessageText
 
 from pawnai_bob.utils import send_text_to_room
 from pawnai_bob.utils.decorators import matrix_command
-from pawnai_bob import client, room, config, get_started_on, get_debug_message, has_debug_message
+from pawnai_bob import client, room, config, get_started_on, get_debug_message, has_debug_message, get_debug_tts_transcript, has_debug_tts_transcript
 from pawnai_bob.commands.expert_commands import ExpertCommands
 from pawnai_bob.commands.room_config_commands import RoomConfigCommands
 from pawnai_bob.commands.index_commands import IndexCommands
@@ -52,6 +52,8 @@ class SystemCommands:
             return await self._context(args, matrix_room, event)
         if command.startswith("model"):
             return await self._index_commands._model(args, matrix_room, event)
+        if command.startswith("tts"):
+            return await self._tts(args, matrix_room, event)
         if command.startswith("debug"):
             return await self._debug(args, matrix_room, event)
         if command.startswith("expert"):
@@ -59,6 +61,30 @@ class SystemCommands:
         if command.startswith("room"):
             return await self._room_commands._room(args, matrix_room, event)
         return False
+
+    @matrix_command
+    async def _tts(self, opts, matrix_room, event):
+        """
+        Retrieve TTS transcript for this room.
+
+        Usage:
+          tts transcript
+        """
+        if 'transcript' in opts and opts['transcript']:
+            if not has_debug_tts_transcript(matrix_room.room_id):
+                await send_text_to_room(client(),
+                                        matrix_room.room_id,
+                                        "No TTS transcript available for this room yet.",
+                                        notice=True,
+                                        event=event)
+            else:
+                await send_text_to_room(
+                    client(),
+                    matrix_room.room_id,
+                    f"Last TTS transcript:\n{get_debug_tts_transcript(matrix_room.room_id)}",
+                    notice=True,
+                    event=event)
+        return True
 
     @matrix_command
     async def _debug(self, opts, matrix_room, event):
@@ -102,6 +128,7 @@ class SystemCommands:
             !bob model      change LLM
             !bob expert     manage experts
             !bob room       manage room configurations
+            !bob tts        retrieve TTS transcript
             !bob debug      show debug information
             """, notice=True,
                                 event=event)

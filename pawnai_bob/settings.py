@@ -54,6 +54,11 @@ class OpenAISettings(BaseModel):
     api_key: str = ""
     default_llm_model: str = "pawn-agent"
     audio_transcription_model: Optional[str] = None
+    tts_model: str = "tts-1"
+    tts_voice: str = "af_heart"
+    tts_language: str = "en"
+    tts_speed: float = 1.0
+    tts_format: str = "opus"
     llm_models: list[str] = Field(default_factory=lambda: ["pawn-agent"])
     default_prompt: str = (
         "You are Bob the chatbot and you are able to have normal interactions"

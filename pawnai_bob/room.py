@@ -71,6 +71,10 @@ class Room:
             'expert_name': expert_name,
             'echo': json_config.get("echo", True),
             'free_speak': json_config.get("free_speak", False),
+            'speak': json_config.get("speak", False),
+            'tts_voice': json_config.get("tts_voice", None),
+            'tts_language': json_config.get("tts_language", None),
+            'tts_model': json_config.get("tts_model", None),
             'users': json_config.get("users", {}),
         }
 
@@ -82,6 +86,10 @@ class Room:
             'expert_name': "",
             'echo': True,
             'free_speak': False,
+            'speak': False,
+            'tts_voice': None,
+            'tts_language': None,
+            'tts_model': None,
             'users': {},
         }
     
@@ -97,6 +105,22 @@ class Room:
     def get_free_speak(self, matrix_room: MatrixRoom) -> bool:
         """Get free speak setting for the room"""
         return self.get(matrix_room)['free_speak']
+
+    def get_speak(self, matrix_room: MatrixRoom) -> bool:
+        """Get speak (TTS output) setting for the room"""
+        return self.get(matrix_room)['speak']
+
+    def get_tts_voice(self, matrix_room: MatrixRoom):
+        """Get per-room TTS voice override, or None to use global config"""
+        return self.get(matrix_room)['tts_voice']
+
+    def get_tts_language(self, matrix_room: MatrixRoom):
+        """Get per-room TTS language override, or None to use global config"""
+        return self.get(matrix_room)['tts_language']
+
+    def get_tts_model(self, matrix_room: MatrixRoom):
+        """Get per-room TTS model override, or None to use global config"""
+        return self.get(matrix_room)['tts_model']
     
     def get_expert_id(self, matrix_room: MatrixRoom) -> int:
         """Get expert ID for the room"""
@@ -113,32 +137,32 @@ class Room:
             conf['client'] = OpenAIClient(self.settings, matrix_room.room_id)
         return conf['client']
     
-    def set_echo(self, matrix_room: MatrixRoom, echo):
-        """
-        Set echo for the given room
-        """
-        current_rc = self.get(matrix_room)
-        current_rc["echo"] = echo
+    def _set_and_save(self, matrix_room: MatrixRoom, key: str, value):
+        """Update a single config key, persist to DB, and invalidate cache."""
+        self.get(matrix_room)[key] = value
         self.save_configuration(matrix_room)
         del self.configuration[matrix_room.room_id]
+
+    def set_echo(self, matrix_room: MatrixRoom, echo):
+        self._set_and_save(matrix_room, "echo", echo)
 
     def set_users(self, matrix_room: MatrixRoom, users):
-        """
-        Set the users mapping configuration
-        """
-        current_rc = self.get(matrix_room)
-        current_rc["users"] = users
-        self.save_configuration(matrix_room)
-        del self.configuration[matrix_room.room_id]
+        self._set_and_save(matrix_room, "users", users)
 
     def set_free_speak(self, matrix_room: MatrixRoom, free_speak):
-        """
-        Set free speak for the given room
-        """
-        current_rc = self.get(matrix_room)
-        current_rc["free_speak"] = free_speak
-        self.save_configuration(matrix_room)
-        del self.configuration[matrix_room.room_id]
+        self._set_and_save(matrix_room, "free_speak", free_speak)
+
+    def set_speak(self, matrix_room: MatrixRoom, speak: bool):
+        self._set_and_save(matrix_room, "speak", speak)
+
+    def set_tts_voice(self, matrix_room: MatrixRoom, voice):
+        self._set_and_save(matrix_room, "tts_voice", voice)
+
+    def set_tts_language(self, matrix_room: MatrixRoom, language):
+        self._set_and_save(matrix_room, "tts_language", language)
+
+    def set_tts_model(self, matrix_room: MatrixRoom, model):
+        self._set_and_save(matrix_room, "tts_model", model)
 
     def set_expert(self, matrix_room: MatrixRoom, expert_id):
         """
@@ -166,6 +190,10 @@ class Room:
             configuration = json.dumps({
                     "echo": current_rc["echo"],
                     "free_speak": current_rc["free_speak"],
+                    "speak": current_rc["speak"],
+                    "tts_voice": current_rc["tts_voice"],
+                    "tts_language": current_rc["tts_language"],
+                    "tts_model": current_rc["tts_model"],
                     "users": current_rc["users"],
                 })
             expert_id = current_rc["expert_id"]

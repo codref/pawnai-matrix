@@ -116,6 +116,18 @@ def get_debug_message() -> Optional[str]:       return _get_debug("message")
 def has_debug_message() -> bool:                return _has_debug("message")
 
 
+def set_debug_tts_transcript(room_id: str, transcript: str) -> None:
+    _debug.setdefault('tts_transcripts', {})[room_id] = transcript
+
+
+def get_debug_tts_transcript(room_id: str) -> Optional[str]:
+    return _debug.get('tts_transcripts', {}).get(room_id)
+
+
+def has_debug_tts_transcript(room_id: str) -> bool:
+    return room_id in _debug.get('tts_transcripts', {})
+
+
 def _resolve_runtime_path(settings: Configuration, path_value: Optional[str], fallback: str) -> str:
     """Resolve a runtime path relative to the config file and ensure it exists."""
     raw_path = path_value or fallback

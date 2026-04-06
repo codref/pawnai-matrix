@@ -44,6 +44,13 @@ openai:
   # Set this only when your API key can access a dedicated transcription model.
   # audio_transcription_model: pawn-transcribe
 
+  # TTS (Text-to-Speech) — POST /v1/audio/speech (Kokoro backend)
+  # tts_model: tts-1        # accepted for OpenAI compat, server ignores it
+  # tts_voice: af_heart     # OpenAI alias or native Kokoro ID (e.g. af_heart, bm_george, bf_emma)
+  # tts_language: en        # BCP-47: en, en-gb, it, fr, es, pt, hi, ja, zh
+  # tts_speed: 1.0          # 0.25–4.0
+  # tts_format: opus        # wav | mp3 | opus | aac | flac | pcm
+
 # Logging setup
 logging:
   # Logging level

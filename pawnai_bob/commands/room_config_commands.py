@@ -3,7 +3,7 @@ from sqlalchemy import select
 
 from pawnai_bob.utils import send_text_to_room
 from pawnai_bob.utils.decorators import matrix_command, power_user_function
-from pawnai_bob import client, room, store
+from pawnai_bob import client, room, store, config
 from pawnai_bob.models import Expert
 
 
@@ -16,8 +16,18 @@ class RoomConfigCommands:
         Usage:
           room get expert
           room get free-speak
+          room get speak
+          room get tts
           room set expert [<expert_name>]
           room set free-speak (on|off)
+          room set speak (on|off)
+          room set tts
+          room set tts voice <value>
+          room set tts language <value>
+          room set tts model <value>
+          room unset tts voice
+          room unset tts language
+          room unset tts model
           room unset expert
           room add user <matrix_user> <name>
           room rm user <matrix_user>
@@ -40,6 +50,81 @@ class RoomConfigCommands:
                                         f"Flag `free-speak` is now {flag}",
                                         notice=True,
                                         event=event)
+
+        elif "speak" in opts and opts['speak']:
+            if 'get' in opts and opts['get']:
+                await send_text_to_room(client(),
+                                        matrix_room.room_id,
+                                        f"Flag `speak` is {room().get_speak(matrix_room)}",
+                                        notice=True,
+                                        event=event)
+            elif 'set' in opts and opts['set']:
+                flag = True if opts['on'] else False
+                room().set_speak(matrix_room, flag)
+                await send_text_to_room(client(),
+                                        matrix_room.room_id,
+                                        f"Flag `speak` is now {flag}",
+                                        notice=True,
+                                        event=event)
+
+        elif "tts" in opts and opts['tts']:
+            if 'get' in opts and opts['get']:
+                def _display(val, key):
+                    return val if val is not None else f"(global: {config().get(f'openai.{key}')})"
+                msg = (
+                    f"tts model:    {_display(room().get_tts_model(matrix_room), 'tts_model')}\n"
+                    f"tts voice:    {_display(room().get_tts_voice(matrix_room), 'tts_voice')}\n"
+                    f"tts language: {_display(room().get_tts_language(matrix_room), 'tts_language')}"
+                )
+                await send_text_to_room(client(), matrix_room.room_id, msg,
+                                        notice=True, event=event)
+
+            elif 'set' in opts and opts['set']:
+                if opts.get('voice') and opts.get('<value>'):
+                    room().set_tts_voice(matrix_room, opts['<value>'])
+                    await send_text_to_room(client(), matrix_room.room_id,
+                                            f"TTS voice is now `{opts['<value>']}`",
+                                            notice=True, event=event)
+                elif opts.get('language') and opts.get('<value>'):
+                    room().set_tts_language(matrix_room, opts['<value>'])
+                    await send_text_to_room(client(), matrix_room.room_id,
+                                            f"TTS language is now `{opts['<value>']}`",
+                                            notice=True, event=event)
+                elif opts.get('model') and opts.get('<value>'):
+                    room().set_tts_model(matrix_room, opts['<value>'])
+                    await send_text_to_room(client(), matrix_room.room_id,
+                                            f"TTS model is now `{opts['<value>']}`",
+                                            notice=True, event=event)
+                else:
+                    # room set tts — pin global config values to this room
+                    model = config().get("openai.tts_model") or "tts-1"
+                    voice = config().get("openai.tts_voice") or "af_heart"
+                    language = config().get("openai.tts_language") or "en"
+                    room().set_tts_model(matrix_room, model)
+                    room().set_tts_voice(matrix_room, voice)
+                    room().set_tts_language(matrix_room, language)
+                    await send_text_to_room(
+                        client(), matrix_room.room_id,
+                        f"TTS settings applied from global config: model=`{model}`, voice=`{voice}`, language=`{language}`",
+                        notice=True, event=event)
+
+            elif 'unset' in opts and opts['unset']:
+                if opts.get('voice'):
+                    room().set_tts_voice(matrix_room, None)
+                    await send_text_to_room(client(), matrix_room.room_id,
+                                            "TTS voice reverted to global config",
+                                            notice=True, event=event)
+                elif opts.get('language'):
+                    room().set_tts_language(matrix_room, None)
+                    await send_text_to_room(client(), matrix_room.room_id,
+                                            "TTS language reverted to global config",
+                                            notice=True, event=event)
+                elif opts.get('model'):
+                    room().set_tts_model(matrix_room, None)
+                    await send_text_to_room(client(), matrix_room.room_id,
+                                            "TTS model reverted to global config",
+                                            notice=True, event=event)
+
         elif "echo" in opts and opts['echo']:
             flag = True if opts['on'] else False
             room().set_echo(matrix_room, flag)

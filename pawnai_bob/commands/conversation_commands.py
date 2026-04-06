@@ -2,9 +2,13 @@ from nio import MatrixRoom, RoomMessageText
 
 from pawnai_bob.utils import send_text_to_room, react_to_event, get_reply_body
 from pawnai_bob import client, room, set_debug_message
+from pawnai_bob.processors.tts_processor import TTSProcessor
 
 
 class ConversationCommands:
+
+    def __init__(self):
+        self._tts_processor = TTSProcessor()
 
     async def process(self, command: str, matrix_room: MatrixRoom,
                       event: RoomMessageText, replies):
@@ -45,15 +49,30 @@ class ConversationCommands:
             if replies_body != "":
                 message = f"{replies_body}\n{message}"
 
-            response = room().get_client(matrix_room).chat_engine.chat(
-                message)
-            # Send back the answer
-            await send_text_to_room(client(),
-                                    matrix_room.room_id,
-                                    str(response),
-                                    event=event)
+            if room().get_speak(matrix_room):
+                message = (
+                    "[Your response will be read aloud via text-to-speech. "
+                    "Use plain prose only — no markdown, no bullet points, no headers, "
+                    "no code blocks, no special characters. Write as natural spoken narration. "
+                    "Use punctuation to convey structure and emphasis: colons to introduce lists, "
+                    "commas and semicolons to separate items, dashes for asides, "
+                    "and full stops to mark clear pauses.]\n\n"
+                    + message
+                )
+
+            response = room().get_client(matrix_room).chat_engine.chat(message)
+            response_text = str(response)
+
+            if room().get_speak(matrix_room):
+                await self._tts_processor.process(matrix_room, event, response_text)
+            else:
+                # Send back the answer
+                await send_text_to_room(client(),
+                                        matrix_room.room_id,
+                                        response_text,
+                                        event=event)
             # Return the answer, as it might be added to the index as well!
-            return str(response)
+            return response_text
         except Exception as e:
             if room().get_echo(matrix_room):
                 await send_text_to_room(client(),
