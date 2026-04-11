@@ -8,7 +8,7 @@ Successfully reorganized utility files in the Matrix Bob project into a structur
 
 ### New Files
 ```
-pawnai_bob/utils/
+pawnai_matrix/utils/
 ├── __init__.py          # Package initialization with convenient imports
 ├── README.md            # Comprehensive utils documentation
 ├── config.py            # Configuration management (was config_utils.py)
@@ -25,7 +25,7 @@ docs/
 
 ### Backward Compatibility Wrappers
 ```
-pawnai_bob/
+pawnai_matrix/
 ├── config_utils.py      # DEPRECATED: Imports from utils.config
 ├── chat_functions.py    # DEPRECATED: Imports from utils.chat
 ├── document.py          # DEPRECATED: Imports from utils.document
@@ -34,9 +34,9 @@ pawnai_bob/
 
 ## Key Features
 
-✅ **Organized Structure**: All utilities now in `pawnai_bob/utils/` package  
+✅ **Organized Structure**: All utilities now in `pawnai_matrix/utils/` package  
 ✅ **Backward Compatible**: Old imports still work (with deprecation warnings)  
-✅ **Convenient Imports**: Can import from package root: `from pawnai_bob.utils import ...`  
+✅ **Convenient Imports**: Can import from package root: `from pawnai_matrix.utils import ...`  
 ✅ **Better Documentation**: Comprehensive docs in utils/README.md  
 ✅ **Extracted Decorators**: Command decorators now reusable across modules  
 ✅ **Clear Separation**: Utilities separated from business logic  
@@ -45,15 +45,15 @@ pawnai_bob/
 
 ### Before
 ```python
-from pawnai_bob.config_utils import get_config_dict
-from pawnai_bob.chat_functions import send_text_to_room
-from pawnai_bob.document import Document
-from pawnai_bob.errors import ConfigError
+from pawnai_matrix.config_utils import get_config_dict
+from pawnai_matrix.chat_functions import send_text_to_room
+from pawnai_matrix.document import Document
+from pawnai_matrix.errors import ConfigError
 ```
 
 ### After (Recommended)
 ```python
-from pawnai_bob.utils import (
+from pawnai_matrix.utils import (
     get_config_dict,
     send_text_to_room,
     Document,
@@ -106,7 +106,7 @@ from pawnai_bob.utils import (
 
 ## Documentation
 
-- **Detailed Guide**: `pawnai_bob/utils/README.md`
+- **Detailed Guide**: `pawnai_matrix/utils/README.md`
 - **Migration Guide**: `docs/UTILS_REORGANIZATION.md`
 - **Structure Diagrams**: `docs/UTILS_ORGANIZATION_DIAGRAM.md`
 - **Quick Reference**: `docs/UTILS_QUICK_REFERENCE.md`
@@ -118,28 +118,28 @@ All existing code continues to work unchanged. The backward compatibility wrappe
 To test:
 ```python
 # Old imports (still work, show warnings)
-from pawnai_bob.config_utils import get_config_dict  # ✓ Works
+from pawnai_matrix.config_utils import get_config_dict  # ✓ Works
 
 # New imports (recommended)
-from pawnai_bob.utils import get_config_dict  # ✓ Works
+from pawnai_matrix.utils import get_config_dict  # ✓ Works
 ```
 
 ## Files Modified
 
 **Created (7 new files):**
-- `pawnai_bob/utils/__init__.py`
-- `pawnai_bob/utils/README.md`
-- `pawnai_bob/utils/config.py`
-- `pawnai_bob/utils/chat.py`
-- `pawnai_bob/utils/decorators.py`
-- `pawnai_bob/utils/document.py`
-- `pawnai_bob/utils/errors.py`
+- `pawnai_matrix/utils/__init__.py`
+- `pawnai_matrix/utils/README.md`
+- `pawnai_matrix/utils/config.py`
+- `pawnai_matrix/utils/chat.py`
+- `pawnai_matrix/utils/decorators.py`
+- `pawnai_matrix/utils/document.py`
+- `pawnai_matrix/utils/errors.py`
 
 **Modified (4 files - now backward compatibility wrappers):**
-- `pawnai_bob/config_utils.py`
-- `pawnai_bob/chat_functions.py`
-- `pawnai_bob/document.py`
-- `pawnai_bob/errors.py`
+- `pawnai_matrix/config_utils.py`
+- `pawnai_matrix/chat_functions.py`
+- `pawnai_matrix/document.py`
+- `pawnai_matrix/errors.py`
 
 **Documentation (3 new files):**
 - `docs/UTILS_REORGANIZATION.md`

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import typer
 from typing_extensions import Annotated
-from pawnai_bob.app import App
+from pawnai_matrix.app import App
 
 app = typer.Typer()
 
@@ -18,7 +18,7 @@ def _command(
     ] = None,
 ):
     """Bob the Bot of Bots."""
-    version = importlib.metadata.version('pawnai_bob')
+    version = importlib.metadata.version('pawnai_matrix')
     typer.echo(f"Bob v{version} starting up...")
     logging.basicConfig(
         format='▸ %(asctime)s.%(msecs)03d %(filename)s:%(lineno)d %(levelname)s %(message)s',

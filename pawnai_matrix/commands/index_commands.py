@@ -1,6 +1,6 @@
-from pawnai_bob.utils import send_text_to_room
-from pawnai_bob.utils.decorators import matrix_command, power_user_function
-from pawnai_bob import client, room, config
+from pawnai_matrix.utils import send_text_to_room
+from pawnai_matrix.utils.decorators import matrix_command, power_user_function
+from pawnai_matrix import client, room, config
 
 
 class IndexCommands:

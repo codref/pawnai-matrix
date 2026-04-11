@@ -2,12 +2,12 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from pawnai_bob.openai_client import OpenAIClient
-from pawnai_bob.room import Room
+from pawnai_matrix.openai_client import OpenAIClient
+from pawnai_matrix.room import Room
 
 
 class OpenAIClientSessionTests(unittest.TestCase):
-    @patch("pawnai_bob.openai_client.OpenAI")
+    @patch("pawnai_matrix.openai_client.OpenAI")
     def test_chat_passes_session_id_as_user(self, openai_cls):
         create = Mock(
             return_value=SimpleNamespace(
@@ -32,7 +32,7 @@ class OpenAIClientSessionTests(unittest.TestCase):
             user="session-123",
         )
 
-    @patch("pawnai_bob.openai_client.OpenAI")
+    @patch("pawnai_matrix.openai_client.OpenAI")
     def test_reset_passes_session_id_as_user(self, openai_cls):
         create = Mock()
         openai_cls.return_value = SimpleNamespace(
@@ -53,7 +53,7 @@ class OpenAIClientSessionTests(unittest.TestCase):
 
 
 class RoomSessionBindingTests(unittest.TestCase):
-    @patch("pawnai_bob.room.OpenAIClient")
+    @patch("pawnai_matrix.room.OpenAIClient")
     def test_get_client_sets_active_session_id_on_client(self, openai_client_cls):
         matrix_room = SimpleNamespace(room_id="!room:example.com")
         client_instance = Mock()

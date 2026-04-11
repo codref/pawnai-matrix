@@ -1,6 +1,6 @@
 # Audio Transcription Compatibility Plan
 
-This document is a server-side compatibility checklist for the Matrix BOB audio transcription flow implemented in [pawnai_bob/processors/audio_processor.py](/home/operatore/git-codref/r-n-d/matrix-bob/pawnai_bob/processors/audio_processor.py).
+This document is a server-side compatibility checklist for the Matrix BOB audio transcription flow implemented in [pawnai_matrix/processors/audio_processor.py](/home/operatore/git-codref/r-n-d/matrix-bob/pawnai_matrix/processors/audio_processor.py).
 
 Its purpose is to validate that the transcription server behind the OpenAI-compatible endpoint works with the current client code without requiring client-side changes.
 
@@ -224,4 +224,4 @@ Preferred fixes on the server side:
 3. Support `response_format=verbose_json`.
 4. Keep the endpoint path and multipart contract fully OpenAI-compatible.
 
-If the server cannot be changed, the fallback is to extend the client parser in [pawnai_bob/processors/audio_processor.py](/home/operatore/git-codref/r-n-d/matrix-bob/pawnai_bob/processors/audio_processor.py) to handle the actual response shape.
+If the server cannot be changed, the fallback is to extend the client parser in [pawnai_matrix/processors/audio_processor.py](/home/operatore/git-codref/r-n-d/matrix-bob/pawnai_matrix/processors/audio_processor.py) to handle the actual response shape.

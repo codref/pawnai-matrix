@@ -7,8 +7,8 @@ from pathlib import Path
 from openai import APIStatusError, OpenAI
 from nio import MatrixRoom, RoomSendError, UploadError
 
-from pawnai_bob import client, config, room, set_debug_tts_transcript
-from pawnai_bob.utils import send_text_to_room
+from pawnai_matrix import client, config, room, set_debug_tts_transcript
+from pawnai_matrix.utils import send_text_to_room
 
 log = logging.getLogger(__name__)
 

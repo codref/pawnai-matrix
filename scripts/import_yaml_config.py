@@ -20,14 +20,14 @@ Usage:
 import sys
 import os
 
-# Add parent directory to path to import pawnai_bob modules
+# Add parent directory to path to import pawnai_matrix modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from pawnai_bob.models import Base
-from pawnai_bob.configuration import Configuration
-from pawnai_bob.utils import populate_config_from_yaml, get_config_dict
+from pawnai_matrix.models import Base
+from pawnai_matrix.configuration import Configuration
+from pawnai_matrix.utils import populate_config_from_yaml, get_config_dict
 
 
 def get_database_url(yaml_file):

@@ -3,7 +3,7 @@
 ## Before (Old Structure)
 
 ```
-pawnai_bob/
+pawnai_matrix/
 ├── __init__.py
 ├── app.py
 ├── callbacks.py
@@ -31,7 +31,7 @@ pawnai_bob/
 ## After (New Structure)
 
 ```
-pawnai_bob/
+pawnai_matrix/
 ├── __init__.py
 ├── app.py
 ├── callbacks.py
@@ -75,28 +75,28 @@ pawnai_bob/
 
 **Old Way:**
 ```python
-from pawnai_bob.config_utils import get_config_dict, populate_config_from_yaml
+from pawnai_matrix.config_utils import get_config_dict, populate_config_from_yaml
 ```
 
 **New Way:**
 ```python
-from pawnai_bob.utils import get_config_dict, populate_config_from_yaml
+from pawnai_matrix.utils import get_config_dict, populate_config_from_yaml
 # OR
-from pawnai_bob.utils.config import get_config_dict, populate_config_from_yaml
+from pawnai_matrix.utils.config import get_config_dict, populate_config_from_yaml
 ```
 
 ### Chat Functions
 
 **Old Way:**
 ```python
-from pawnai_bob.chat_functions import send_text_to_room, react_to_event
+from pawnai_matrix.chat_functions import send_text_to_room, react_to_event
 ```
 
 **New Way:**
 ```python
-from pawnai_bob.utils import send_text_to_room, react_to_event
+from pawnai_matrix.utils import send_text_to_room, react_to_event
 # OR
-from pawnai_bob.utils.chat import send_text_to_room, react_to_event
+from pawnai_matrix.utils.chat import send_text_to_room, react_to_event
 ```
 
 ### Decorators
@@ -110,7 +110,7 @@ def matrix_command(func):
 
 **New Way:**
 ```python
-from pawnai_bob.utils import matrix_command, power_user_function
+from pawnai_matrix.utils import matrix_command, power_user_function
 
 class MyCommands:
     @power_user_function
@@ -123,16 +123,16 @@ class MyCommands:
 
 **Old Way:**
 ```python
-from pawnai_bob.document import Document
-from pawnai_bob.errors import ConfigError
+from pawnai_matrix.document import Document
+from pawnai_matrix.errors import ConfigError
 ```
 
 **New Way:**
 ```python
-from pawnai_bob.utils import Document, ConfigError
+from pawnai_matrix.utils import Document, ConfigError
 # OR
-from pawnai_bob.utils.document import Document
-from pawnai_bob.utils.errors import ConfigError
+from pawnai_matrix.utils.document import Document
+from pawnai_matrix.utils.errors import ConfigError
 ```
 
 ## Benefits of New Structure
@@ -146,12 +146,12 @@ from pawnai_bob.utils.errors import ConfigError
 ### 2. **Better Discoverability**
 ```python
 # It's now obvious where to find utilities
-from pawnai_bob.utils import ...  # All utilities here!
+from pawnai_matrix.utils import ...  # All utilities here!
 
 # vs. the old way
-from pawnai_bob.config_utils import ...  # Which module has what I need?
-from pawnai_bob.chat_functions import ...
-from pawnai_bob.document import ...
+from pawnai_matrix.config_utils import ...  # Which module has what I need?
+from pawnai_matrix.chat_functions import ...
+from pawnai_matrix.document import ...
 ```
 
 ### 3. **Scalability**

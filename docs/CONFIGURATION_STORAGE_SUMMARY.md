@@ -7,7 +7,7 @@ A complete key-value based configuration storage system for matrix-bob using SQL
 ## Files Modified/Created
 
 ### 1. Model Definition
-**File**: `pawnai_bob/models.py`
+**File**: `pawnai_matrix/models.py`
 
 - Updated imports to include `Text`, `JSON`, `Integer`, `Float`
 - Created `BotConfiguration` model with key-value structure:
@@ -24,7 +24,7 @@ A complete key-value based configuration storage system for matrix-bob using SQL
 - Includes both `upgrade()` and `downgrade()` functions
 
 ### 3. Utility Functions
-**File**: `pawnai_bob/config_utils.py`
+**File**: `pawnai_matrix/config_utils.py`
 
 Provides helper functions:
 - `get_default_configuration()` - Returns default values based on Configuration class
@@ -112,8 +112,8 @@ See `get_default_configuration()` for complete list.
 ```python
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from pawnai_bob.models import Base
-from pawnai_bob.config_utils import populate_defaults, get_value
+from pawnai_matrix.models import Base
+from pawnai_matrix.config_utils import populate_defaults, get_value
 
 # Setup
 engine = create_engine("postgresql://user:pass@localhost/db")
@@ -132,8 +132,8 @@ with Session(engine) as session:
 
 ### Import from YAML
 ```python
-from pawnai_bob.configuration import Configuration
-from pawnai_bob.config_utils import populate_config_from_yaml
+from pawnai_matrix.configuration import Configuration
+from pawnai_matrix.config_utils import populate_config_from_yaml
 
 config = Configuration("config.yaml")
 with Session(engine) as session:
@@ -176,7 +176,7 @@ To use in your database:
 
 3. Use in application:
    ```python
-   from pawnai_bob.config_utils import get_value
+   from pawnai_matrix.config_utils import get_value
    
    openai_url = get_value(session, "openai_url", "production")
    ```

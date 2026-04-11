@@ -21,11 +21,11 @@ if config.config_file_name is not None:
 ##target_metadata = None
 
 
-from pawnai_bob.models import Base
+from pawnai_matrix.models import Base
 target_metadata = Base.metadata
 
-from pawnai_bob.configuration import Configuration
-from pawnai_bob.settings import resolve_config_path
+from pawnai_matrix.configuration import Configuration
+from pawnai_matrix.settings import resolve_config_path
 
 settings = Configuration(str(resolve_config_path()))
 config.set_main_option('sqlalchemy.url', settings.database_connection_string)

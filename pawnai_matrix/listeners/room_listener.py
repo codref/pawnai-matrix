@@ -3,10 +3,10 @@ import arrow
 from functools import wraps
 from datetime import datetime
 from nio import MatrixRoom, RoomMessageText
-from pawnai_bob.utils import send_text_to_room
-from pawnai_bob import client, room, set_debug_message, store
-from pawnai_bob.models import RoomMessage
-from pawnai_bob.processors.audio_processor import AudioProcessor
+from pawnai_matrix.utils import send_text_to_room
+from pawnai_matrix import client, room, set_debug_message, store
+from pawnai_matrix.models import RoomMessage
+from pawnai_matrix.processors.audio_processor import AudioProcessor
 
 
 log = logging.getLogger(__name__)

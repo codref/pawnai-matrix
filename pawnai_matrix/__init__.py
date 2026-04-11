@@ -1,7 +1,7 @@
 '''
     Matrix Bob module
 '''
-from pawnai_bob.globals import (
+from pawnai_matrix.globals import (
     settings, 
     config,
     store, 

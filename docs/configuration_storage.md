@@ -35,8 +35,8 @@ The `BotConfiguration` model stores configuration as key-value pairs in PostgreS
 ```python
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from pawnai_bob.models import Base
-from pawnai_bob.config_utils import populate_defaults
+from pawnai_matrix.models import Base
+from pawnai_matrix.config_utils import populate_defaults
 
 # Create database and tables
 engine = create_engine("postgresql://user:pass@localhost/dbname")
@@ -57,8 +57,8 @@ python scripts/populate_config_defaults.py default
 ### 2. Import Configuration from YAML
 
 ```python
-from pawnai_bob.configuration import Configuration
-from pawnai_bob.config_utils import populate_config_from_yaml
+from pawnai_matrix.configuration import Configuration
+from pawnai_matrix.config_utils import populate_config_from_yaml
 
 # Load YAML config
 yaml_config = Configuration("config.yaml")
@@ -80,7 +80,7 @@ python scripts/import_yaml_config.py bin/config.yaml production
 #### Get all configuration as a dictionary:
 
 ```python
-from pawnai_bob.config_utils import get_config_dict
+from pawnai_matrix.config_utils import get_config_dict
 
 with Session(engine) as session:
     config = get_config_dict(session, "production")
@@ -91,7 +91,7 @@ with Session(engine) as session:
 #### Get individual values:
 
 ```python
-from pawnai_bob.config_utils import get_value
+from pawnai_matrix.config_utils import get_value
 
 with Session(engine) as session:
     url = get_value(session, "openai_url", "production")
@@ -101,7 +101,7 @@ with Session(engine) as session:
 #### Using the model directly:
 
 ```python
-from pawnai_bob.models import BotConfiguration
+from pawnai_matrix.models import BotConfiguration
 
 with Session(engine) as session:
     value = BotConfiguration.get_value(session, "openai_url", "production")
@@ -110,7 +110,7 @@ with Session(engine) as session:
 ### 4. Update Configuration Values
 
 ```python
-from pawnai_bob.config_utils import set_value
+from pawnai_matrix.config_utils import set_value
 
 with Session(engine) as session:
     # Update a string value
@@ -125,7 +125,7 @@ with Session(engine) as session:
 ### 5. Manage Multiple Configuration Sets
 
 ```python
-from pawnai_bob.config_utils import list_config_names, delete_config
+from pawnai_matrix.config_utils import list_config_names, delete_config
 
 with Session(engine) as session:
     # List all configuration sets
@@ -260,5 +260,5 @@ python scripts/import_yaml_config.py <yaml_file> [config_name]
 ## API Reference
 
 See the complete API documentation in:
-- `pawnai_bob/models.py` - `BotConfiguration` model
-- `pawnai_bob/config_utils.py` - Helper functions
+- `pawnai_matrix/models.py` - `BotConfiguration` model
+- `pawnai_matrix/config_utils.py` - Helper functions

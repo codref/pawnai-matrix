@@ -3,13 +3,13 @@ import shlex
 import importlib.metadata
 from nio import MatrixRoom, RoomMessageText
 
-from pawnai_bob.utils import send_text_to_room
-from pawnai_bob.utils.decorators import matrix_command
-from pawnai_bob import client, room, config, get_started_on, get_debug_message, has_debug_message, get_debug_tts_transcript, has_debug_tts_transcript
-from pawnai_bob.commands.expert_commands import ExpertCommands
-from pawnai_bob.commands.room_config_commands import RoomConfigCommands
-from pawnai_bob.commands.index_commands import IndexCommands
-from pawnai_bob.commands.session_commands import SessionCommands
+from pawnai_matrix.utils import send_text_to_room
+from pawnai_matrix.utils.decorators import matrix_command
+from pawnai_matrix import client, room, config, get_started_on, get_debug_message, has_debug_message, get_debug_tts_transcript, has_debug_tts_transcript
+from pawnai_matrix.commands.expert_commands import ExpertCommands
+from pawnai_matrix.commands.room_config_commands import RoomConfigCommands
+from pawnai_matrix.commands.index_commands import IndexCommands
+from pawnai_matrix.commands.session_commands import SessionCommands
 
 
 class SystemCommands:
@@ -118,7 +118,7 @@ class SystemCommands:
 
     async def _help(self, args, matrix_room, event):
         """Print available commands"""
-        version = importlib.metadata.version('pawnai_bob')
+        version = importlib.metadata.version('pawnai_matrix')
         uptime = datetime.datetime.now() - get_started_on()
         await send_text_to_room(client(),
                                 matrix_room.room_id,
@@ -141,7 +141,7 @@ class SystemCommands:
 
     async def _info(self, args, matrix_room, event):
         """Print some information"""
-        version = importlib.metadata.version('pawnai_bob')
+        version = importlib.metadata.version('pawnai_matrix')
         uptime = datetime.datetime.now() - get_started_on()
         await send_text_to_room(client(),
                                 matrix_room.room_id,

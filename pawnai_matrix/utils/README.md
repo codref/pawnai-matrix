@@ -5,7 +5,7 @@ This package contains utility modules organized by functionality for better code
 ## Structure
 
 ```
-pawnai_bob/utils/
+pawnai_matrix/utils/
 ├── __init__.py          # Package initialization with convenient imports
 ├── config.py            # Configuration management utilities
 ├── chat.py              # Chat and messaging helper functions
@@ -30,7 +30,7 @@ Configuration management utilities for working with BotConfiguration ORM model.
 
 **Usage:**
 ```python
-from pawnai_bob.utils import populate_config_from_yaml, get_config_dict
+from pawnai_matrix.utils import populate_config_from_yaml, get_config_dict
 
 # Import from YAML
 with Session(engine) as session:
@@ -54,7 +54,7 @@ Chat and messaging helper functions for Matrix interactions.
 
 **Usage:**
 ```python
-from pawnai_bob.utils import send_text_to_room, react_to_event
+from pawnai_matrix.utils import send_text_to_room, react_to_event
 
 # Send a message
 await send_text_to_room(client, room_id, "Hello!", notice=True)
@@ -72,7 +72,7 @@ Function decorators for command methods.
 
 **Usage:**
 ```python
-from pawnai_bob.utils import matrix_command, power_user_function
+from pawnai_matrix.utils import matrix_command, power_user_function
 
 class MyCommands:
     @power_user_function
@@ -93,7 +93,7 @@ Simple document data model for storing text with metadata.
 
 **Usage:**
 ```python
-from pawnai_bob.utils import Document
+from pawnai_matrix.utils import Document
 
 doc = Document(
     text="Hello world",
@@ -109,7 +109,7 @@ Custom exception classes.
 
 **Usage:**
 ```python
-from pawnai_bob.utils import ConfigError
+from pawnai_matrix.utils import ConfigError
 
 raise ConfigError("Invalid configuration value")
 ```
@@ -120,13 +120,13 @@ raise ConfigError("Invalid configuration value")
 
 ```python
 # OLD
-from pawnai_bob.config_utils import get_config_dict
-from pawnai_bob.chat_functions import send_text_to_room
-from pawnai_bob.document import Document
-from pawnai_bob.errors import ConfigError
+from pawnai_matrix.config_utils import get_config_dict
+from pawnai_matrix.chat_functions import send_text_to_room
+from pawnai_matrix.document import Document
+from pawnai_matrix.errors import ConfigError
 
 # NEW (recommended)
-from pawnai_bob.utils import (
+from pawnai_matrix.utils import (
     get_config_dict,
     send_text_to_room,
     Document,
@@ -134,8 +134,8 @@ from pawnai_bob.utils import (
 )
 
 # OR (if you need many functions from one module)
-from pawnai_bob.utils import config
-from pawnai_bob.utils import chat
+from pawnai_matrix.utils import config
+from pawnai_matrix.utils import chat
 
 config_dict = config.get_config_dict(session)
 await chat.send_text_to_room(client, room_id, message)
@@ -170,7 +170,7 @@ def my_new_chat_helper():
     pass
 
 # In utils/__init__.py
-from pawnai_bob.utils.chat import (
+from pawnai_matrix.utils.chat import (
     ...,
     my_new_chat_helper,  # Add here
 )

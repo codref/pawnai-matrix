@@ -20,9 +20,9 @@ from nio import (
     UnknownEvent,
 )
 
-from pawnai_bob.callbacks import Callbacks
-from pawnai_bob import client, init, config, set_started_on
-from pawnai_bob.settings import resolve_config_path
+from pawnai_matrix.callbacks import Callbacks
+from pawnai_matrix import client, init, config, set_started_on
+from pawnai_matrix.settings import resolve_config_path
 
 log = logging.getLogger(__name__)
 

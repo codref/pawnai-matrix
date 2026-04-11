@@ -8,8 +8,8 @@ class (which reads from YAML files) and the BotConfiguration ORM model
 Usage example:
     from sqlalchemy import create_engine
     from sqlalchemy.orm import Session
-    from pawnai_bob.models import Base, BotConfiguration
-    from pawnai_bob.utils import populate_config_from_yaml, get_config_dict
+    from pawnai_matrix.models import Base, BotConfiguration
+    from pawnai_matrix.utils import populate_config_from_yaml, get_config_dict
     
     # Create database tables
     engine = create_engine("postgresql://user:password@localhost/dbname")
@@ -29,8 +29,8 @@ Usage example:
 import json
 from typing import Dict, Any
 from sqlalchemy.orm import Session
-from pawnai_bob.models import BotConfiguration
-from pawnai_bob.settings import BobSettings
+from pawnai_matrix.models import BotConfiguration
+from pawnai_matrix.settings import BobSettings
 
 
 def get_default_configuration() -> Dict[str, Any]:

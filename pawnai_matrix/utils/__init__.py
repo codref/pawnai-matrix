@@ -9,7 +9,7 @@ This package contains various utility modules organized by functionality:
 - errors: Custom exception classes
 """
 
-from pawnai_bob.utils.config import (
+from pawnai_matrix.utils.config import (
     get_default_configuration,
     populate_defaults,
     populate_config_from_yaml,
@@ -20,7 +20,7 @@ from pawnai_bob.utils.config import (
     list_config_names,
 )
 
-from pawnai_bob.utils.chat import (
+from pawnai_matrix.utils.chat import (
     send_text_to_room,
     make_pill,
     react_to_event,
@@ -29,14 +29,14 @@ from pawnai_bob.utils.chat import (
     download_event_resources,
 )
 
-from pawnai_bob.utils.decorators import (
+from pawnai_matrix.utils.decorators import (
     matrix_command,
     power_user_function,
 )
 
-from pawnai_bob.utils.document import Document
+from pawnai_matrix.utils.document import Document
 
-from pawnai_bob.utils.errors import ConfigError
+from pawnai_matrix.utils.errors import ConfigError
 
 __all__ = [
     # Config utilities

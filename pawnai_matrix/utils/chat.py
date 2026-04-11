@@ -196,7 +196,7 @@ async def download_event_resources(event):
         Creates a temporary directory and downloads on it the 
         file associated to the event object passed
     """
-    from pawnai_bob.globals import config, client
+    from pawnai_matrix.globals import config, client
 
     temp_path_instance = tempfile.TemporaryDirectory(
         dir=config().get("storage.temp_path", "./tmp"), ignore_cleanup_errors=True)

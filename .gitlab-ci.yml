@@ -17,7 +17,7 @@ restart_ollama:
     - sudo systemctl status ollama
   when: manual
 
-restart_pawnai_bob:
+restart_pawnai_matrix:
   stage: maintenance
   variables:
     GIT_STRATEGY: none
@@ -31,7 +31,7 @@ restart_pawnai_bob:
     - sudo systemctl status matrix-bob
   when: manual  
 
-get_pawnai_bob_logs:
+get_pawnai_matrix_logs:
   stage: maintenance
   variables:
     GIT_STRATEGY: none

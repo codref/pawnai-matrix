@@ -29,8 +29,8 @@ Config file defaults to `bin/config.yaml`. Use `bin/sample.config.yaml` as a tem
 ## Code Style
 
 ```bash
-flake8 pawnai_bob/
-isort pawnai_bob/
+flake8 pawnai_matrix/
+isort pawnai_matrix/
 ```
 
 Flake8 ignores: W503, W504, E203, E731, E501. isort uses multi-line output mode 3 with trailing commas.
@@ -39,7 +39,7 @@ There are no automated tests.
 
 ## Architecture
 
-### Global State (`pawnai_bob/globals.py`)
+### Global State (`pawnai_matrix/globals.py`)
 
 All major singletons are initialized in `init(config_file_path)` and accessed via getter functions (`settings()`, `config()`, `store()`, `client()`, `room_manager()`). These raise `NotInitializedError` if called before initialization. `config()` returns a flat dict of all bot configuration loaded from the PostgreSQL `BotConfiguration` table (not the YAML directly — YAML populates defaults at startup).
 
@@ -49,17 +49,17 @@ Two-layer config:
 1. **YAML** (`bin/config.yaml`) — minimal bootstrap: DB connection string, Matrix credentials to seed into DB
 2. **Database** (`BotConfiguration` table) — runtime config as key-value pairs (e.g. `openai.default_model`, `matrix.command_prefix`). Accessed via `config().get('section.key')`. Use `utils/config.py` helpers (`get_value`, `set_value`, `get_config_dict`) for DB-level config access.
 
-### Command Dispatch (`pawnai_bob/commands/`)
+### Command Dispatch (`pawnai_matrix/commands/`)
 
 Commands flow: `SystemCommands` → `VisionCommands` → `ConversationCommands`. Each returns a truthy value if it handled the message. Commands use docopt-format docstrings parsed by the `@matrix_command` decorator. Power-user-only commands use `@power_user_function`.
 
 `ConversationCommands` is the catch-all — it sends the message to the LLM chat engine.
 
-### Room Configuration (`pawnai_bob/room.py`)
+### Room Configuration (`pawnai_matrix/room.py`)
 
 `Room` manages per-room state: assigned expert (LLM config preset), echo mode, index-conversation flag, vision two-step mode, and user display name mapping. Config is persisted to `RoomConfiguration` in PostgreSQL and cached in memory. Access via `room_manager().get(matrix_room)`.
 
-### LLM Client (`pawnai_bob/openai_client.py`)
+### LLM Client (`pawnai_matrix/openai_client.py`)
 
 `OpenAIClient` wraps LlamaIndex with an OpenAI-compatible backend. It manages:
 - LLM + embedding model initialization
@@ -79,7 +79,7 @@ Matrix event → Callbacks (callbacks.py)
   └── File         → RoomListener.store_file → LlamaIndex SimpleDirectoryReader → index
 ```
 
-### Database Models (`pawnai_bob/models.py`)
+### Database Models (`pawnai_matrix/models.py`)
 
 - `Expert` — named LLM configurations (JSON-serialized `OpenAIClient` state)
 - `RoomConfiguration` — per-room expert assignment + config blob

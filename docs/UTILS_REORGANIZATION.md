@@ -7,7 +7,7 @@ The utility files in Matrix Bob have been reorganized into a structured `utils` 
 ## New Structure
 
 ```
-pawnai_bob/
+pawnai_matrix/
 ├── utils/                    # NEW: Organized utilities package
 │   ├── __init__.py          # Convenient imports from all utils
 │   ├── README.md            # Detailed utils documentation
@@ -25,9 +25,9 @@ pawnai_bob/
 
 ## Changes Made
 
-### 1. Created `pawnai_bob/utils/` Package
+### 1. Created `pawnai_matrix/utils/` Package
 
-All utility modules are now organized under `pawnai_bob/utils/`:
+All utility modules are now organized under `pawnai_matrix/utils/`:
 
 - **`config.py`**: Configuration management utilities (previously `config_utils.py`)
   - `get_default_configuration()`
@@ -59,10 +59,10 @@ All utility modules are now organized under `pawnai_bob/utils/`:
 ### 2. Backward Compatibility
 
 The old module names are still available but **deprecated**:
-- `pawnai_bob.config_utils` → use `pawnai_bob.utils.config`
-- `pawnai_bob.chat_functions` → use `pawnai_bob.utils.chat`
-- `pawnai_bob.document` → use `pawnai_bob.utils.document`
-- `pawnai_bob.errors` → use `pawnai_bob.utils.errors`
+- `pawnai_matrix.config_utils` → use `pawnai_matrix.utils.config`
+- `pawnai_matrix.chat_functions` → use `pawnai_matrix.utils.chat`
+- `pawnai_matrix.document` → use `pawnai_matrix.utils.document`
+- `pawnai_matrix.errors` → use `pawnai_matrix.utils.errors`
 
 These modules now show a `DeprecationWarning` and re-export from the new locations.
 
@@ -72,7 +72,7 @@ You can now import utilities in multiple ways:
 
 ```python
 # Option 1: Import from utils package (recommended)
-from pawnai_bob.utils import (
+from pawnai_matrix.utils import (
     get_config_dict,
     send_text_to_room,
     Document,
@@ -81,17 +81,17 @@ from pawnai_bob.utils import (
 )
 
 # Option 2: Import from specific modules
-from pawnai_bob.utils.config import get_config_dict
-from pawnai_bob.utils.chat import send_text_to_room
+from pawnai_matrix.utils.config import get_config_dict
+from pawnai_matrix.utils.chat import send_text_to_room
 
 # Option 3: Import modules
-from pawnai_bob.utils import config, chat
+from pawnai_matrix.utils import config, chat
 config_dict = config.get_config_dict(session)
 await chat.send_text_to_room(client, room_id, message)
 
 # Option 4: Backward compatible (deprecated, shows warning)
-from pawnai_bob.config_utils import get_config_dict
-from pawnai_bob.chat_functions import send_text_to_room
+from pawnai_matrix.config_utils import get_config_dict
+from pawnai_matrix.chat_functions import send_text_to_room
 ```
 
 ## Benefits
@@ -111,15 +111,15 @@ To migrate from the old structure to the new one:
 
 **Before:**
 ```python
-from pawnai_bob.config_utils import populate_config_from_yaml, get_config_dict
-from pawnai_bob.chat_functions import send_text_to_room, react_to_event
-from pawnai_bob.document import Document
-from pawnai_bob.errors import ConfigError
+from pawnai_matrix.config_utils import populate_config_from_yaml, get_config_dict
+from pawnai_matrix.chat_functions import send_text_to_room, react_to_event
+from pawnai_matrix.document import Document
+from pawnai_matrix.errors import ConfigError
 ```
 
 **After:**
 ```python
-from pawnai_bob.utils import (
+from pawnai_matrix.utils import (
     populate_config_from_yaml,
     get_config_dict,
     send_text_to_room,
@@ -143,7 +143,7 @@ def matrix_command(func):
 
 **After:**
 ```python
-from pawnai_bob.utils import matrix_command, power_user_function
+from pawnai_matrix.utils import matrix_command, power_user_function
 
 class SystemCommands:
     @power_user_function
@@ -155,26 +155,26 @@ class SystemCommands:
 ## Files Modified
 
 1. **Created:**
-   - `pawnai_bob/utils/__init__.py`
-   - `pawnai_bob/utils/README.md`
-   - `pawnai_bob/utils/config.py`
-   - `pawnai_bob/utils/chat.py`
-   - `pawnai_bob/utils/decorators.py`
-   - `pawnai_bob/utils/document.py`
-   - `pawnai_bob/utils/errors.py`
+   - `pawnai_matrix/utils/__init__.py`
+   - `pawnai_matrix/utils/README.md`
+   - `pawnai_matrix/utils/config.py`
+   - `pawnai_matrix/utils/chat.py`
+   - `pawnai_matrix/utils/decorators.py`
+   - `pawnai_matrix/utils/document.py`
+   - `pawnai_matrix/utils/errors.py`
 
 2. **Modified (backward compatibility wrappers):**
-   - `pawnai_bob/config_utils.py`
-   - `pawnai_bob/chat_functions.py`
-   - `pawnai_bob/document.py`
-   - `pawnai_bob/errors.py`
+   - `pawnai_matrix/config_utils.py`
+   - `pawnai_matrix/chat_functions.py`
+   - `pawnai_matrix/document.py`
+   - `pawnai_matrix/errors.py`
 
 ## Next Steps
 
 ### Recommended Actions
 
-1. **Update imports gradually**: Start using `from pawnai_bob.utils import ...` in new code
-2. **Update decorators**: Modify command files to use `from pawnai_bob.utils import matrix_command`
+1. **Update imports gradually**: Start using `from pawnai_matrix.utils import ...` in new code
+2. **Update decorators**: Modify command files to use `from pawnai_matrix.utils import matrix_command`
 3. **Update existing files**: When touching existing files, update their imports
 4. **Monitor deprecation warnings**: Check for deprecation warnings during development
 5. **Remove old modules**: After all code is migrated, the old wrapper files can be removed
@@ -188,4 +188,4 @@ class SystemCommands:
 
 ## Documentation
 
-See `pawnai_bob/utils/README.md` for detailed documentation of each utility module and usage examples.
+See `pawnai_matrix/utils/README.md` for detailed documentation of each utility module and usage examples.

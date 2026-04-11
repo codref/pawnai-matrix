@@ -10,10 +10,10 @@ from nio import (
     UnknownEvent,
 )
 
-from pawnai_bob.commands import SystemCommands, ConversationCommands
-from pawnai_bob.utils import make_pill, react_to_event, send_text_to_room, get_related_reply_to_events, get_reply_body, download_event_resources
-from pawnai_bob import client, config, room
-from pawnai_bob.listeners.room_listener import RoomListener
+from pawnai_matrix.commands import SystemCommands, ConversationCommands
+from pawnai_matrix.utils import make_pill, react_to_event, send_text_to_room, get_related_reply_to_events, get_reply_body, download_event_resources
+from pawnai_matrix import client, config, room
+from pawnai_matrix.listeners.room_listener import RoomListener
 
 log = logging.getLogger(__name__)
 

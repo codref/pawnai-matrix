@@ -9,10 +9,10 @@ import arrow
 from nio import MatrixRoom
 from openai import APIStatusError, OpenAI
 
-from pawnai_bob import client, config, room, set_debug_message, store
-from pawnai_bob.commands import ConversationCommands, SystemCommands
-from pawnai_bob.models import RoomMessage
-from pawnai_bob.utils import react_to_event, send_text_to_room
+from pawnai_matrix import client, config, room, set_debug_message, store
+from pawnai_matrix.commands import ConversationCommands, SystemCommands
+from pawnai_matrix.models import RoomMessage
+from pawnai_matrix.utils import react_to_event, send_text_to_room
 
 log = logging.getLogger(__name__)
 

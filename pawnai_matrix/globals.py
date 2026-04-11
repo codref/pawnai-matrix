@@ -1,5 +1,5 @@
 """
-    pawnai_bob.globals
+    pawnai_matrix.globals
     Defines all the global objects with proper type hints and initialization management
 """
 
@@ -9,10 +9,10 @@ from typing import Optional, Dict, Any
 
 log = logging.getLogger(__name__)
 
-from pawnai_bob.configuration import Configuration
-from pawnai_bob.database import Storage
-from pawnai_bob.room import Room
-from pawnai_bob.utils import get_config_dict
+from pawnai_matrix.configuration import Configuration
+from pawnai_matrix.database import Storage
+from pawnai_matrix.room import Room
+from pawnai_matrix.utils import get_config_dict
 from nio import AsyncClient, AsyncClientConfig
 
 # Global state variables with explicit types

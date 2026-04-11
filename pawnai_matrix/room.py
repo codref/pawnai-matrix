@@ -3,8 +3,8 @@ import json
 
 from nio import (MatrixRoom)
 from sqlalchemy import select
-from pawnai_bob.models import Expert, RoomConfiguration
-from pawnai_bob.openai_client import OpenAIClient
+from pawnai_matrix.models import Expert, RoomConfiguration
+from pawnai_matrix.openai_client import OpenAIClient
 
 log = logging.getLogger(__name__)
 

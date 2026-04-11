@@ -3,12 +3,12 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
-from pawnai_bob.callbacks import Callbacks
-from pawnai_bob.commands.room_config_commands import RoomConfigCommands
-from pawnai_bob.commands.session_commands import SessionCommands
-from pawnai_bob.commands.system_commands import SystemCommands
-from pawnai_bob.processors.audio_processor import AudioProcessor
-from pawnai_bob.room import Room
+from pawnai_matrix.callbacks import Callbacks
+from pawnai_matrix.commands.room_config_commands import RoomConfigCommands
+from pawnai_matrix.commands.session_commands import SessionCommands
+from pawnai_matrix.commands.system_commands import SystemCommands
+from pawnai_matrix.processors.audio_processor import AudioProcessor
+from pawnai_matrix.room import Room
 
 
 class CallbacksFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
@@ -20,13 +20,13 @@ class CallbacksFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         event = SimpleNamespace(body="!bob help", sender="@user:example.com")
 
         with patch(
-            "pawnai_bob.callbacks.config",
+            "pawnai_matrix.callbacks.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.callbacks.client",
+            "pawnai_matrix.callbacks.client",
             return_value=SimpleNamespace(user="@bob:example.com"),
         ), patch(
-            "pawnai_bob.callbacks.get_related_reply_to_events",
+            "pawnai_matrix.callbacks.get_related_reply_to_events",
             new=AsyncMock(return_value=[]),
         ):
             callbacks = Callbacks()
@@ -50,16 +50,16 @@ class CallbacksFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         event = SimpleNamespace(body="hello there", sender="@user:example.com")
 
         with patch(
-            "pawnai_bob.callbacks.config",
+            "pawnai_matrix.callbacks.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.callbacks.client",
+            "pawnai_matrix.callbacks.client",
             return_value=SimpleNamespace(user="@bob:example.com"),
         ), patch(
-            "pawnai_bob.callbacks.get_related_reply_to_events",
+            "pawnai_matrix.callbacks.get_related_reply_to_events",
             new=AsyncMock(return_value=[]),
         ), patch(
-            "pawnai_bob.callbacks.room",
+            "pawnai_matrix.callbacks.room",
             return_value=SimpleNamespace(get_free_speak=lambda _: False),
         ):
             callbacks = Callbacks()
@@ -82,19 +82,19 @@ class CallbacksFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         event = SimpleNamespace(body="ignored in reply mode", sender="@user:example.com")
 
         with patch(
-            "pawnai_bob.callbacks.config",
+            "pawnai_matrix.callbacks.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.callbacks.client",
+            "pawnai_matrix.callbacks.client",
             return_value=SimpleNamespace(user="@bob:example.com"),
         ), patch(
-            "pawnai_bob.callbacks.get_related_reply_to_events",
+            "pawnai_matrix.callbacks.get_related_reply_to_events",
             new=AsyncMock(return_value=[reply_event]),
         ), patch(
-            "pawnai_bob.callbacks.get_reply_body",
+            "pawnai_matrix.callbacks.get_reply_body",
             return_value="tell me a joke",
         ), patch(
-            "pawnai_bob.callbacks.room",
+            "pawnai_matrix.callbacks.room",
             return_value=SimpleNamespace(get_free_speak=lambda _: True),
         ):
             callbacks = Callbacks()
@@ -118,13 +118,13 @@ class CallbacksFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         event = SimpleNamespace(body=r"\reset", sender="@user:example.com")
 
         with patch(
-            "pawnai_bob.callbacks.config",
+            "pawnai_matrix.callbacks.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.callbacks.client",
+            "pawnai_matrix.callbacks.client",
             return_value=SimpleNamespace(user="@bob:example.com"),
         ), patch(
-            "pawnai_bob.callbacks.get_related_reply_to_events",
+            "pawnai_matrix.callbacks.get_related_reply_to_events",
             new=AsyncMock(return_value=[]),
         ):
             callbacks = Callbacks()
@@ -157,13 +157,13 @@ class CallbacksFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         )
 
         with patch(
-            "pawnai_bob.callbacks.config",
+            "pawnai_matrix.callbacks.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.callbacks.client",
+            "pawnai_matrix.callbacks.client",
             return_value=SimpleNamespace(user="@bob:example.com"),
         ), patch(
-            "pawnai_bob.callbacks.get_related_reply_to_events",
+            "pawnai_matrix.callbacks.get_related_reply_to_events",
             new=AsyncMock(return_value=[]),
         ):
             callbacks = Callbacks()
@@ -191,13 +191,13 @@ class CallbacksFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         )
 
         with patch(
-            "pawnai_bob.callbacks.config",
+            "pawnai_matrix.callbacks.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.callbacks.client",
+            "pawnai_matrix.callbacks.client",
             return_value=SimpleNamespace(user="@bob:example.com"),
         ), patch(
-            "pawnai_bob.callbacks.get_related_reply_to_events",
+            "pawnai_matrix.callbacks.get_related_reply_to_events",
             new=AsyncMock(return_value=[]),
         ):
             callbacks = Callbacks()
@@ -225,16 +225,16 @@ class CallbacksFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         )
 
         with patch(
-            "pawnai_bob.callbacks.config",
+            "pawnai_matrix.callbacks.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.callbacks.client",
+            "pawnai_matrix.callbacks.client",
             return_value=SimpleNamespace(user="@bob:example.com"),
         ), patch(
-            "pawnai_bob.callbacks.get_related_reply_to_events",
+            "pawnai_matrix.callbacks.get_related_reply_to_events",
             new=AsyncMock(return_value=[]),
         ), patch(
-            "pawnai_bob.callbacks.room",
+            "pawnai_matrix.callbacks.room",
             return_value=SimpleNamespace(get_free_speak=lambda _: True),
         ):
             callbacks = Callbacks()
@@ -262,16 +262,16 @@ class CallbacksFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         )
 
         with patch(
-            "pawnai_bob.callbacks.config",
+            "pawnai_matrix.callbacks.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.callbacks.client",
+            "pawnai_matrix.callbacks.client",
             return_value=SimpleNamespace(user="@bob:example.com"),
         ), patch(
-            "pawnai_bob.callbacks.get_related_reply_to_events",
+            "pawnai_matrix.callbacks.get_related_reply_to_events",
             new=AsyncMock(return_value=[]),
         ), patch(
-            "pawnai_bob.callbacks.room",
+            "pawnai_matrix.callbacks.room",
             return_value=SimpleNamespace(get_free_speak=lambda _: False),
         ):
             callbacks = Callbacks()
@@ -294,10 +294,10 @@ class AudioProcessorFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         event = SimpleNamespace()
 
         with patch(
-            "pawnai_bob.processors.audio_processor.config",
+            "pawnai_matrix.processors.audio_processor.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.processors.audio_processor.room",
+            "pawnai_matrix.processors.audio_processor.room",
             return_value=SimpleNamespace(get_free_speak=lambda _: False),
         ):
             processor = AudioProcessor()
@@ -314,10 +314,10 @@ class AudioProcessorFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         event = SimpleNamespace()
 
         with patch(
-            "pawnai_bob.processors.audio_processor.config",
+            "pawnai_matrix.processors.audio_processor.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.processors.audio_processor.room",
+            "pawnai_matrix.processors.audio_processor.room",
             return_value=SimpleNamespace(get_free_speak=lambda _: True),
         ):
             processor = AudioProcessor()
@@ -336,10 +336,10 @@ class AudioProcessorFreeSpeakTests(unittest.IsolatedAsyncioTestCase):
         event = SimpleNamespace()
 
         with patch(
-            "pawnai_bob.processors.audio_processor.config",
+            "pawnai_matrix.processors.audio_processor.config",
             return_value={"matrix.command_prefix": "!bob"},
         ), patch(
-            "pawnai_bob.processors.audio_processor.room",
+            "pawnai_matrix.processors.audio_processor.room",
             return_value=SimpleNamespace(get_free_speak=lambda _: True),
         ):
             processor = AudioProcessor()
@@ -494,16 +494,16 @@ class RoomCommandHelpTests(unittest.IsolatedAsyncioTestCase):
         send_text = AsyncMock()
 
         with patch(
-            "pawnai_bob.commands.system_commands.send_text_to_room",
+            "pawnai_matrix.commands.system_commands.send_text_to_room",
             new=send_text,
         ), patch(
-            "pawnai_bob.utils.chat.send_text_to_room",
+            "pawnai_matrix.utils.chat.send_text_to_room",
             new=send_text,
         ), patch(
-            "pawnai_bob.client",
+            "pawnai_matrix.client",
             return_value=SimpleNamespace(),
         ), patch(
-            "pawnai_bob.config",
+            "pawnai_matrix.config",
             return_value={"matrix.power_users": ["@admin:example.com"]},
         ):
             commands = SystemCommands()
@@ -540,13 +540,13 @@ class SessionCommandsTests(unittest.IsolatedAsyncioTestCase):
         send_text = AsyncMock()
 
         with patch(
-            "pawnai_bob.commands.session_commands.room",
+            "pawnai_matrix.commands.session_commands.room",
             return_value=FakeRoomManager(),
         ), patch(
-            "pawnai_bob.commands.session_commands.client",
+            "pawnai_matrix.commands.session_commands.client",
             return_value=SimpleNamespace(),
         ), patch(
-            "pawnai_bob.commands.session_commands.send_text_to_room",
+            "pawnai_matrix.commands.session_commands.send_text_to_room",
             new=send_text,
         ):
             commands = SessionCommands()
@@ -581,13 +581,13 @@ class SessionCommandsTests(unittest.IsolatedAsyncioTestCase):
         send_text = AsyncMock()
 
         with patch(
-            "pawnai_bob.commands.session_commands.room",
+            "pawnai_matrix.commands.session_commands.room",
             return_value=FakeRoomManager(),
         ), patch(
-            "pawnai_bob.commands.session_commands.client",
+            "pawnai_matrix.commands.session_commands.client",
             return_value=SimpleNamespace(),
         ), patch(
-            "pawnai_bob.commands.session_commands.send_text_to_room",
+            "pawnai_matrix.commands.session_commands.send_text_to_room",
             new=send_text,
         ):
             commands = SessionCommands()
@@ -643,13 +643,13 @@ class SessionCommandsTests(unittest.IsolatedAsyncioTestCase):
         manager = FakeRoomManager()
 
         with patch(
-            "pawnai_bob.commands.session_commands.room",
+            "pawnai_matrix.commands.session_commands.room",
             return_value=manager,
         ), patch(
-            "pawnai_bob.commands.session_commands.client",
+            "pawnai_matrix.commands.session_commands.client",
             return_value=SimpleNamespace(),
         ), patch(
-            "pawnai_bob.commands.session_commands.send_text_to_room",
+            "pawnai_matrix.commands.session_commands.send_text_to_room",
             new=send_text,
         ):
             commands = SessionCommands()
@@ -692,13 +692,13 @@ class SessionCommandsTests(unittest.IsolatedAsyncioTestCase):
         manager = FakeRoomManager()
 
         with patch(
-            "pawnai_bob.commands.session_commands.room",
+            "pawnai_matrix.commands.session_commands.room",
             return_value=manager,
         ), patch(
-            "pawnai_bob.commands.session_commands.client",
+            "pawnai_matrix.commands.session_commands.client",
             return_value=SimpleNamespace(),
         ), patch(
-            "pawnai_bob.commands.session_commands.send_text_to_room",
+            "pawnai_matrix.commands.session_commands.send_text_to_room",
             new=send_text,
         ):
             commands = SessionCommands()
@@ -743,13 +743,13 @@ class SessionCommandsTests(unittest.IsolatedAsyncioTestCase):
         manager = FakeRoomManager()
 
         with patch(
-            "pawnai_bob.commands.session_commands.room",
+            "pawnai_matrix.commands.session_commands.room",
             return_value=manager,
         ), patch(
-            "pawnai_bob.commands.session_commands.client",
+            "pawnai_matrix.commands.session_commands.client",
             return_value=SimpleNamespace(),
         ), patch(
-            "pawnai_bob.commands.session_commands.send_text_to_room",
+            "pawnai_matrix.commands.session_commands.send_text_to_room",
             new=send_text,
         ):
             commands = SessionCommands()
@@ -788,13 +788,13 @@ class SessionCommandsTests(unittest.IsolatedAsyncioTestCase):
         manager = FakeRoomManager()
 
         with patch(
-            "pawnai_bob.commands.session_commands.room",
+            "pawnai_matrix.commands.session_commands.room",
             return_value=manager,
         ), patch(
-            "pawnai_bob.commands.session_commands.client",
+            "pawnai_matrix.commands.session_commands.client",
             return_value=SimpleNamespace(),
         ), patch(
-            "pawnai_bob.commands.session_commands.send_text_to_room",
+            "pawnai_matrix.commands.session_commands.send_text_to_room",
             new=send_text,
         ):
             commands = SessionCommands()

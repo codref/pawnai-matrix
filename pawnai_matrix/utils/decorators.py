@@ -38,8 +38,8 @@ def matrix_command(func):
     @functools.wraps(func)
     async def fn(self, args, matrix_room, event):
         # Import here to avoid circular imports
-        from pawnai_bob.utils.chat import send_text_to_room
-        from pawnai_bob import client
+        from pawnai_matrix.utils.chat import send_text_to_room
+        from pawnai_matrix import client
         
         try:
             opts = docopt(fn.__doc__, args)
@@ -88,8 +88,8 @@ def power_user_function(func):
     @functools.wraps(func)
     async def fn(self, args, matrix_room, event):
         # Import here to avoid circular imports
-        from pawnai_bob.utils.chat import send_text_to_room
-        from pawnai_bob import client, config
+        from pawnai_matrix.utils.chat import send_text_to_room
+        from pawnai_matrix import client, config
 
         if event.sender not in config().get('matrix.power_users', []):
             await send_text_to_room(

@@ -1,8 +1,8 @@
 import logging
 import os
 
-from pawnai_bob.utils.errors import ConfigError
-from pawnai_bob.settings import BobSettings
+from pawnai_matrix.utils.errors import ConfigError
+from pawnai_matrix.settings import BobSettings
 
 log = logging.getLogger(__name__)
 

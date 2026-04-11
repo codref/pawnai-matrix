@@ -1,8 +1,8 @@
 from nio import MatrixRoom, RoomMessageText
 
-from pawnai_bob.utils import send_text_to_room, react_to_event, get_reply_body
-from pawnai_bob import client, room, set_debug_message
-from pawnai_bob.processors.tts_processor import TTSProcessor
+from pawnai_matrix.utils import send_text_to_room, react_to_event, get_reply_body
+from pawnai_matrix import client, room, set_debug_message
+from pawnai_matrix.processors.tts_processor import TTSProcessor
 
 
 class ConversationCommands:

@@ -4,7 +4,7 @@
 
 ### All-in-One Import (Recommended)
 ```python
-from pawnai_bob.utils import (
+from pawnai_matrix.utils import (
     # Config utilities
     get_config_dict,
     populate_config_from_yaml,
@@ -27,16 +27,16 @@ from pawnai_bob.utils import (
 
 ### By Module
 ```python
-from pawnai_bob.utils.config import get_config_dict, populate_config_from_yaml
-from pawnai_bob.utils.chat import send_text_to_room, react_to_event
-from pawnai_bob.utils.decorators import matrix_command, power_user_function
-from pawnai_bob.utils.document import Document
-from pawnai_bob.utils.errors import ConfigError
+from pawnai_matrix.utils.config import get_config_dict, populate_config_from_yaml
+from pawnai_matrix.utils.chat import send_text_to_room, react_to_event
+from pawnai_matrix.utils.decorators import matrix_command, power_user_function
+from pawnai_matrix.utils.document import Document
+from pawnai_matrix.utils.errors import ConfigError
 ```
 
 ### Import Entire Module
 ```python
-from pawnai_bob.utils import config, chat
+from pawnai_matrix.utils import config, chat
 
 # Use as:
 config_dict = config.get_config_dict(session)
@@ -47,7 +47,7 @@ await chat.send_text_to_room(client, room_id, message)
 
 ### Configuration Management
 ```python
-from pawnai_bob.utils import get_config_dict, set_value
+from pawnai_matrix.utils import get_config_dict, set_value
 
 # Load configuration
 with Session(engine) as session:
@@ -61,7 +61,7 @@ with Session(engine) as session:
 
 ### Sending Messages
 ```python
-from pawnai_bob.utils import send_text_to_room, react_to_event
+from pawnai_matrix.utils import send_text_to_room, react_to_event
 
 # Send text
 await send_text_to_room(client, room_id, "Hello!", notice=True)
@@ -72,7 +72,7 @@ await react_to_event(client, room_id, event_id, "👍")
 
 ### Creating Commands
 ```python
-from pawnai_bob.utils import matrix_command, power_user_function
+from pawnai_matrix.utils import matrix_command, power_user_function
 
 class MyCommands:
     @matrix_command
@@ -133,8 +133,8 @@ class MyCommands:
 **Before:**
 ```python
 # commands/system_commands.py
-from pawnai_bob.chat_functions import send_text_to_room
-from pawnai_bob import client
+from pawnai_matrix.chat_functions import send_text_to_room
+from pawnai_matrix import client
 
 def matrix_command(func):
     # decorator implementation
@@ -149,8 +149,8 @@ class SystemCommands:
 **After:**
 ```python
 # commands/system_commands.py
-from pawnai_bob.utils import send_text_to_room, matrix_command
-from pawnai_bob import client
+from pawnai_matrix.utils import send_text_to_room, matrix_command
+from pawnai_matrix import client
 
 class SystemCommands:
     @matrix_command
@@ -162,8 +162,8 @@ class SystemCommands:
 **Before:**
 ```python
 # listeners/room_listener.py
-from pawnai_bob.document import Document
-from pawnai_bob.chat_functions import send_text_to_room, react_to_event
+from pawnai_matrix.document import Document
+from pawnai_matrix.chat_functions import send_text_to_room, react_to_event
 
 class RoomListener:
     async def handle_message(self, event):
@@ -174,7 +174,7 @@ class RoomListener:
 **After:**
 ```python
 # listeners/room_listener.py
-from pawnai_bob.utils import Document, send_text_to_room, react_to_event
+from pawnai_matrix.utils import Document, send_text_to_room, react_to_event
 
 class RoomListener:
     async def handle_message(self, event):
@@ -186,7 +186,7 @@ class RoomListener:
 **Before:**
 ```python
 # scripts/import_yaml_config.py
-from pawnai_bob.config_utils import populate_config_from_yaml, get_config_dict
+from pawnai_matrix.config_utils import populate_config_from_yaml, get_config_dict
 
 with Session(engine) as session:
     populate_config_from_yaml(session, "config.yaml", "production")
@@ -196,7 +196,7 @@ with Session(engine) as session:
 **After:**
 ```python
 # scripts/import_yaml_config.py
-from pawnai_bob.utils import populate_config_from_yaml, get_config_dict
+from pawnai_matrix.utils import populate_config_from_yaml, get_config_dict
 
 with Session(engine) as session:
     populate_config_from_yaml(session, "config.yaml", "production")
@@ -209,23 +209,23 @@ Old imports still work but show deprecation warnings:
 
 ```python
 # These still work (with warnings):
-from pawnai_bob.config_utils import get_config_dict  # DeprecationWarning
-from pawnai_bob.chat_functions import send_text_to_room  # DeprecationWarning
-from pawnai_bob.document import Document  # DeprecationWarning
-from pawnai_bob.errors import ConfigError  # DeprecationWarning
+from pawnai_matrix.config_utils import get_config_dict  # DeprecationWarning
+from pawnai_matrix.chat_functions import send_text_to_room  # DeprecationWarning
+from pawnai_matrix.document import Document  # DeprecationWarning
+from pawnai_matrix.errors import ConfigError  # DeprecationWarning
 
 # Update to these:
-from pawnai_bob.utils import get_config_dict
-from pawnai_bob.utils import send_text_to_room
-from pawnai_bob.utils import Document
-from pawnai_bob.utils import ConfigError
+from pawnai_matrix.utils import get_config_dict
+from pawnai_matrix.utils import send_text_to_room
+from pawnai_matrix.utils import Document
+from pawnai_matrix.utils import ConfigError
 ```
 
 ## Testing
 
 ```python
 # Test imports
-from pawnai_bob.utils import (
+from pawnai_matrix.utils import (
     get_config_dict,
     send_text_to_room,
     matrix_command,
@@ -243,6 +243,6 @@ assert issubclass(ConfigError, Exception)
 
 ## See Also
 
-- `pawnai_bob/utils/README.md` - Detailed documentation
+- `pawnai_matrix/utils/README.md` - Detailed documentation
 - `docs/UTILS_REORGANIZATION.md` - Complete reorganization guide
 - `docs/UTILS_ORGANIZATION_DIAGRAM.md` - Visual structure diagrams
