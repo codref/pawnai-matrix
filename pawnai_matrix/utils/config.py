@@ -62,6 +62,32 @@ def populate_defaults(session: Session, config_name: str = "default") -> None:
         BotConfiguration.set_value(session, key, value, config_name)
 
 
+def seed_config_from_yaml(
+    session: Session,
+    yaml_file_path: str,
+    config_name: str = "default"
+) -> None:
+    """
+    Seed the database from a YAML config file, skipping keys already present.
+
+    Safe to call on every startup: existing DB values are never overwritten,
+    so runtime config changes survive restarts.
+    """
+    import os
+
+    if not os.path.isfile(yaml_file_path):
+        return
+
+    flattened = BobSettings.from_yaml(yaml_file_path).to_runtime_flat_dict()
+    existing_keys = {
+        row.key
+        for row in session.query(BotConfiguration).filter_by(config_name=config_name).all()
+    }
+    for key, value in flattened.items():
+        if key not in existing_keys:
+            BotConfiguration.set_value(session, key, value, config_name)
+
+
 def populate_config_from_yaml(
     session: Session,
     yaml_file_path: str,

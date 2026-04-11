@@ -15,6 +15,14 @@ services:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  adminer:
+    image: adminer
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    depends_on:
+      - db
+    restart: unless-stopped
+
   bob:
     build:
       context: ..

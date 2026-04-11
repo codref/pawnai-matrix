@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 from pawnai_matrix.configuration import Configuration
 from pawnai_matrix.database import Storage
 from pawnai_matrix.room import Room
-from pawnai_matrix.utils import get_config_dict
+from pawnai_matrix.utils import get_config_dict, seed_config_from_yaml
 from nio import AsyncClient, AsyncClientConfig
 
 # Global state variables with explicit types
@@ -153,10 +153,13 @@ def init(config_file_path: str) -> None:
     
     try:
         _settings = Configuration(config_file_path)
-        _store = Storage(_settings.database_connection_string)    
-        
-        # Retrieve configuration as dictionary from the database
-        _config_dict = get_config_dict(_store.get_session(), _settings.configuration_name)
+        _store = Storage(_settings.database_connection_string)
+
+        # Seed DB from YAML for any keys not already present, then read config
+        session = _store.get_session()
+        seed_config_from_yaml(session, config_file_path, _settings.configuration_name)
+        session.commit()
+        _config_dict = get_config_dict(session, _settings.configuration_name)
         _config_dict['storage.store_path'] = _resolve_runtime_path(
             _settings,
             _config_dict.get('storage.store_path'),
