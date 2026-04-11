@@ -19,7 +19,6 @@ dependencies = [
     "matrix-nio[e2e]>=0.24.0",
     "Markdown>=3.6",
     "PyYAML>=6.0.1",
-    "Jinja2",
     "sqlalchemy",
     "alembic",
     "pillow",
@@ -29,8 +28,6 @@ dependencies = [
     "arrow",
     "python_magic",
     "nest_asyncio",
-    "pytz",
-    "apscheduler",
     "psycopg2-binary",
     "pydantic-settings>=2.0.0",
 ]

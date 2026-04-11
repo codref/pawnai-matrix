@@ -1,19 +1,18 @@
 # Matrix BOB
 
-A Matrix https://matrix.org/ **bot** to experiment with autoregressive LLMs.  
-The project aims at providing a usable instrument capable of carrying out any sort of activity which can help the other people in the Matrix room Bob joined. Among the various features we can highlight:
+A [Matrix](https://matrix.org/) **bot** to experiment with autoregressive LLMs.  
+Bob integrates with any OpenAI-compatible API (e.g. Ollama, LiteLLM) and can:
 
-* remember things storing indexed documents on Qdrant vector database
-* search for stuff over uploaded documents
-* scrape the web and summarize the content
-* schedule recurring tasks based on LLM queries
-* transcribe audio messages and use them for both augmenting Bob knowledge or interact with him.
+* carry on conversations in Matrix rooms
+* transcribe audio messages and use them as input
+* describe and process images
+* scrape the web and summarize content
 
 ## Install
 
-```bash 
+```bash
 python -m venv .venv
-. ./.venv/bin/activate
+source .venv/bin/activate
 pip install .
 ```
 
@@ -23,30 +22,53 @@ pip install .
 pip install --editable .
 ```
 
-## Run 
+## Configuration
 
-Bob requires a Qdrant server instance; the `docker` directory contains an example `docker-compose.yml` file which can be just launched.  
-A Dockerized version of Bob is not yet available.  
+Copy the sample config and fill in your values:
 
-The `config.yaml` file must be configured as well!
-
-```
-./bin/bob
+```bash
+cp config/sample.config.yaml config/config.yaml
 ```
 
-## Run database migration
+Minimum fields to set: Matrix credentials (`user_id`, `user_password`, `homeserver_url`, `device_id`),
+`inviters`, `power_users`, and the `openai.url` pointing at your LLM backend.
 
+## Run
+
+Bob requires a PostgreSQL database. The `docker/` directory contains a `docker-compose.yaml`
+that starts the database and the bot together:
+
+```bash
+cd docker
+docker compose up -d
 ```
+
+Or run locally after starting PostgreSQL separately:
+
+```bash
+bob [config/config.yaml]
+```
+
+Config file defaults to `config/config.yaml`.
+
+## Database migrations
+
+```bash
 alembic upgrade head
 ```
 
-## Open source and how to contribute
+Run this once on first setup and after any update that includes new migrations.
 
-The project is at its early stage, therefore I'd not suggest to push any valuable information yet, but anybody can contribute, just follow the contributing guidelines!  
+## Deployment
+
+See [docs/deployment.md](docs/deployment.md) for a full production deployment guide (Docker Compose + systemd + GitHub Actions CI).
+
+## Open source and contributing
+
+Contributions are welcome — please open an issue or discussion before starting significant work.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ### Thanks to
 
-* matrix-nio library https://github.com/matrix-nio/matrix-nio
-* nio-template project https://github.com/anoadragon453/nio-template
-
-
+* [matrix-nio](https://github.com/matrix-nio/matrix-nio)
+* [nio-template](https://github.com/anoadragon453/nio-template)
