@@ -48,6 +48,9 @@ class OpenAIClient:
     def set_chat_mode(self, mode: str):
         self.chat_mode = mode
 
+    def set_session_id(self, session_id: str):
+        self.session_id = session_id
+
     def toJSON(self) -> str:
         return json.dumps({
             'llm_model': self.llm_model,

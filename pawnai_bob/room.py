@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 
 class Room:
     """Creates an room configuration object storing the LLM"""
+    DEFAULT_SESSION_ALIAS = "default"
 
     def __init__(self, settings, store):
         self.settings = settings
@@ -31,7 +32,7 @@ class Room:
             room_config = self._fetch_room_config_from_db(session, matrix_room.room_id)
             
             if room_config is None:
-                return self._create_default_configuration()
+                return self._create_default_configuration(matrix_room.room_id)
             
             conf = json.loads(room_config.configuration)
             expert = self._fetch_expert_if_exists(session, room_config.expert_id)
@@ -39,7 +40,8 @@ class Room:
             return self._build_configuration(
                 expert_id=room_config.expert_id,
                 expert_name=expert.name if expert else "",
-                json_config=conf
+                json_config=conf,
+                room_id=matrix_room.room_id,
             )
 
     def _fetch_room_config_from_db(self, session, room_id) -> RoomConfiguration | None:
@@ -63,8 +65,14 @@ class Room:
             )
         return expert
 
-    def _build_configuration(self, expert_id: int | None, expert_name: str, json_config: dict) -> dict:
+    def _build_configuration(self, expert_id: int | None, expert_name: str, json_config: dict,
+                             room_id: str | None = None) -> dict:
         """Build configuration dictionary from components"""
+        normalized_sessions, current_session = self._normalize_sessions(
+            json_config,
+            room_id or "",
+        )
+
         return {
             'client': None,
             'expert_id': expert_id if expert_id is not None else -1,
@@ -76,9 +84,38 @@ class Room:
             'tts_language': json_config.get("tts_language", None),
             'tts_model': json_config.get("tts_model", None),
             'users': json_config.get("users", {}),
+            'sessions': normalized_sessions,
+            'current_session': current_session,
         }
 
-    def _create_default_configuration(self) -> dict:
+    def _normalize_sessions(self, json_config: dict, room_id: str) -> tuple[dict[str, str], str]:
+        """Normalize persisted session mapping and active alias."""
+        raw_sessions = json_config.get("sessions")
+        sessions: dict[str, str] = {}
+
+        if isinstance(raw_sessions, dict):
+            for alias, session_id in raw_sessions.items():
+                if isinstance(alias, str) and alias and isinstance(session_id, str) and session_id:
+                    sessions[alias] = session_id
+
+        # Keep backward compatibility: when room_id is available, `default` maps to room_id.
+        if room_id:
+            sessions[self.DEFAULT_SESSION_ALIAS] = room_id
+        elif self.DEFAULT_SESSION_ALIAS not in sessions:
+            sessions[self.DEFAULT_SESSION_ALIAS] = ""
+
+        if not sessions:
+            sessions = {
+                self.DEFAULT_SESSION_ALIAS: room_id
+            }
+
+        current_session = json_config.get("current_session")
+        if not isinstance(current_session, str) or current_session not in sessions:
+            current_session = self.DEFAULT_SESSION_ALIAS
+
+        return sessions, current_session
+
+    def _create_default_configuration(self, room_id: str = "") -> dict:
         """Create a default configuration"""
         return {
             'client': None,
@@ -91,6 +128,10 @@ class Room:
             'tts_language': None,
             'tts_model': None,
             'users': {},
+            'sessions': {
+                self.DEFAULT_SESSION_ALIAS: room_id,
+            },
+            'current_session': self.DEFAULT_SESSION_ALIAS,
         }
     
     # Property Getters
@@ -129,12 +170,31 @@ class Room:
     def get_expert_name(self, matrix_room: MatrixRoom) -> str:
         """Get expert name for the room"""
         return self.get(matrix_room)['expert_name']
+
+    def get_sessions(self, matrix_room: MatrixRoom) -> dict[str, str]:
+        """Get the session alias mapping for the room."""
+        return self.get(matrix_room)['sessions']
+
+    def get_current_session_alias(self, matrix_room: MatrixRoom) -> str:
+        """Get the active session alias for the room."""
+        return self.get(matrix_room)['current_session']
+
+    def get_current_session_id(self, matrix_room: MatrixRoom) -> str:
+        """Get the active session id for the room."""
+        conf = self.get(matrix_room)
+        alias = conf['current_session']
+        return conf['sessions'][alias]
+
+    def get_session_id(self, matrix_room: MatrixRoom, alias: str) -> str | None:
+        """Get the session id for a given alias, if present."""
+        return self.get_sessions(matrix_room).get(alias)
     
     def get_client(self, matrix_room: MatrixRoom):
         """Get client for the room, lazily initializing it on first access."""
         conf = self.get(matrix_room)
         if conf['client'] is None:
             conf['client'] = OpenAIClient(self.settings, matrix_room.room_id)
+        conf['client'].set_session_id(self.get_current_session_id(matrix_room))
         return conf['client']
     
     def _set_and_save(self, matrix_room: MatrixRoom, key: str, value):
@@ -164,6 +224,36 @@ class Room:
     def set_tts_model(self, matrix_room: MatrixRoom, model):
         self._set_and_save(matrix_room, "tts_model", model)
 
+    def _persist_and_invalidate(self, matrix_room: MatrixRoom):
+        self.save_configuration(matrix_room)
+        del self.configuration[matrix_room.room_id]
+
+    def build_session_id(self, matrix_room: MatrixRoom, alias: str) -> str:
+        """Build a deterministic room-scoped session identifier."""
+        return f"{matrix_room.room_id}::session::{alias}"
+
+    def create_session(self, matrix_room: MatrixRoom, alias: str) -> str:
+        """Create a room session alias and switch to it."""
+        conf = self.get(matrix_room)
+        if alias in conf['sessions']:
+            raise ValueError(f"Session `{alias}` already exists.")
+
+        session_id = self.build_session_id(matrix_room, alias)
+        conf['sessions'][alias] = session_id
+        conf['current_session'] = alias
+        self._persist_and_invalidate(matrix_room)
+        return session_id
+
+    def use_session(self, matrix_room: MatrixRoom, alias: str) -> str:
+        """Switch active room session to an existing alias."""
+        conf = self.get(matrix_room)
+        if alias not in conf['sessions']:
+            raise ValueError(f"Session `{alias}` not found.")
+
+        conf['current_session'] = alias
+        self._persist_and_invalidate(matrix_room)
+        return conf['sessions'][alias]
+
     def set_expert(self, matrix_room: MatrixRoom, expert_id):
         """
         Set a new room configuration
@@ -187,6 +277,13 @@ class Room:
             stmt = select(RoomConfiguration).filter(
                 RoomConfiguration.room_id == matrix_room.room_id)
             rc = session.scalar(stmt)
+            sessions, current_session = self._normalize_sessions(
+                {
+                    "sessions": current_rc.get("sessions"),
+                    "current_session": current_rc.get("current_session"),
+                },
+                matrix_room.room_id,
+            )
             configuration = json.dumps({
                     "echo": current_rc["echo"],
                     "free_speak": current_rc["free_speak"],
@@ -195,6 +292,8 @@ class Room:
                     "tts_language": current_rc["tts_language"],
                     "tts_model": current_rc["tts_model"],
                     "users": current_rc["users"],
+                    "sessions": sessions,
+                    "current_session": current_session,
                 })
             expert_id = current_rc["expert_id"]
             persisted_expert_id = None if expert_id in (-1, None) else expert_id

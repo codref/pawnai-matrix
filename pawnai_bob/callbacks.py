@@ -26,6 +26,25 @@ class Callbacks:
         self.conversation_commands = ConversationCommands()
         self.room_listener = RoomListener()
 
+    @staticmethod
+    def _is_message_edit_event(event: RoomMessageText) -> bool:
+        source = getattr(event, "source", {}) or {}
+        relation = source.get("content", {}).get("m.relates_to", {})
+        return relation.get("rel_type") == "m.replace"
+
+    def _normalize_message_text(self, event: RoomMessageText, message: str) -> tuple[str, bool]:
+        if not self._is_message_edit_event(event):
+            return message, False
+
+        source = getattr(event, "source", {}) or {}
+        new_body = source.get("content", {}).get("m.new_content", {}).get("body")
+        if isinstance(new_body, str) and new_body.strip():
+            return new_body, True
+
+        if message.startswith("* "):
+            return message[2:], True
+        return message, True
+
     async def uploaded_file(self, matrix_room: MatrixRoom, event) -> None:
         """Callback for when a file event is received
 
@@ -67,10 +86,15 @@ class Callbacks:
                                                     event)
         if replies:
             msg = get_reply_body(event)
+        msg, is_edited_event = self._normalize_message_text(event, msg)
 
         log.debug(
             f"Bot message received for matrix_room {matrix_room.display_name} | "
             f"{matrix_room.user_name(event.sender)}: {msg}")
+
+        if msg.strip() == r"\reset":
+            await self.system_commands.process("session reset", matrix_room, event)
+            return
 
         # check for !bob commands in the beginning of the message
         has_command_prefix = msg.startswith(self.command_prefix)
@@ -96,8 +120,17 @@ class Callbacks:
                     return
 
         else:
-            await self.room_listener.store_message_text(matrix_room, event)
-            if room().get_free_speak(matrix_room):
+            free_speak = room().get_free_speak(matrix_room)
+            if is_edited_event and not free_speak:
+                await self.room_listener.store_message_text(
+                    matrix_room,
+                    event,
+                    text_override=msg,
+                )
+            else:
+                await self.room_listener.store_message_text(matrix_room, event)
+
+            if free_speak:
                 response = await self.conversation_commands.process(
                     msg, matrix_room, event, replies)
                 if response:

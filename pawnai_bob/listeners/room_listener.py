@@ -51,7 +51,12 @@ class RoomListener:
         self.audio_processor = AudioProcessor()
 
     @handle_room_errors("Cannot process the message:")
-    async def store_message_text(self, matrix_room: MatrixRoom, event: RoomMessageText):
+    async def store_message_text(
+        self,
+        matrix_room: MatrixRoom,
+        event: RoomMessageText,
+        text_override: str | None = None,
+    ):
         """
         Store messages sent to a room in the database
         """
@@ -65,7 +70,7 @@ class RoomListener:
         message = RoomMessage(
             room_id=matrix_room.room_id,
             author=sender,
-            text=event.body,
+            text=text_override if text_override is not None else event.body,
             timestamp=datetime.utcnow(),
             message_metadata={
                 "date": arrow.utcnow().to('Europe/Rome').format('dddd, D of MMMM')

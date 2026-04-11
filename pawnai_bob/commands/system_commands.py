@@ -9,6 +9,7 @@ from pawnai_bob import client, room, config, get_started_on, get_debug_message, 
 from pawnai_bob.commands.expert_commands import ExpertCommands
 from pawnai_bob.commands.room_config_commands import RoomConfigCommands
 from pawnai_bob.commands.index_commands import IndexCommands
+from pawnai_bob.commands.session_commands import SessionCommands
 
 
 class SystemCommands:
@@ -17,6 +18,7 @@ class SystemCommands:
         self._expert_commands = ExpertCommands()
         self._room_commands = RoomConfigCommands()
         self._index_commands = IndexCommands()
+        self._session_commands = SessionCommands()
 
     async def process(self, command: str, matrix_room: MatrixRoom,
                       event: RoomMessageText):
@@ -60,6 +62,8 @@ class SystemCommands:
             return await self._expert_commands._expert(args, matrix_room, event)
         if command.startswith("room"):
             return await self._room_commands._room(args, matrix_room, event)
+        if command.startswith("session"):
+            return await self._session_commands._session(args, matrix_room, event)
         return False
 
     @matrix_command
@@ -126,6 +130,7 @@ class SystemCommands:
             !bob prompt     manage LLM prompt
             !bob context    change context size
             !bob model      change LLM
+            !bob session    manage room sessions
             !bob expert     manage experts
             !bob room       manage room configurations
             !bob tts        retrieve TTS transcript
