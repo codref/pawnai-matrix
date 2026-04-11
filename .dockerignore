@@ -160,6 +160,7 @@ cython_debug/
 #.idea/
 
 
+config/
 config.yaml
 bob.db
 store

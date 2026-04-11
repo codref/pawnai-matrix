@@ -903,8 +903,7 @@ wheels = [
 ]
 
 [[package]]
-name = "pawnai-bob"
-version = "0.0.55"
+name = "pawnai-matrix"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },

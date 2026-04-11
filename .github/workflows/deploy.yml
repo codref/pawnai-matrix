@@ -1,0 +1,26 @@
+name: Deploy to server
+
+on:
+  push:
+    branches: [main]
+
+env:
+  DEPLOY_PATH: /opt/pawnai-matrix
+
+jobs:
+  deploy:
+    name: Build and restart on server
+    runs-on: self-hosted
+
+    steps:
+      - name: Pull latest code
+        run: git -C ${{ env.DEPLOY_PATH }} pull origin main
+
+      - name: Build bot image
+        run: docker compose -f ${{ env.DEPLOY_PATH }}/docker/docker-compose.yaml build bob
+
+      - name: Run database migrations
+        run: docker compose -f ${{ env.DEPLOY_PATH }}/docker/docker-compose.yaml run --rm bob alembic upgrade head
+
+      - name: Restart bot container
+        run: docker compose -f ${{ env.DEPLOY_PATH }}/docker/docker-compose.yaml up -d bob
