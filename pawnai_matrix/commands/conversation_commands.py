@@ -4,6 +4,9 @@ from pawnai_matrix.utils import send_text_to_room, react_to_event, get_reply_bod
 from pawnai_matrix import client, room, set_debug_message
 from pawnai_matrix.processors.tts_processor import TTSProcessor
 
+LISTEN_ONLY_BYPASS_TOKEN = "PAWN_LISTEN_ONLY_BYPASS"
+THINKING_REACTION = "⋯"
+
 
 class ConversationCommands:
 
@@ -26,10 +29,12 @@ class ConversationCommands:
     async def _chat(self, message: str, matrix_room: MatrixRoom, event,
                     replies: list):
 
-        # React with a thinking emoji
-        reaction = "🤔"
-        await react_to_event(client(), matrix_room.room_id, event.event_id,
-                             reaction)
+        await react_to_event(
+            client(),
+            matrix_room.room_id,
+            event.event_id,
+            THINKING_REACTION,
+        )
 
         # Send a start typing event, with a fixed timeout
         # TODO estimate the typing duration or stream back the reply!
@@ -63,7 +68,13 @@ class ConversationCommands:
             response = room().get_client(matrix_room).chat_engine.chat(message)
             response_text = str(response)
 
-            if room().get_speak(matrix_room):
+            bypass_client_output = LISTEN_ONLY_BYPASS_TOKEN in response_text
+
+            if bypass_client_output:
+                set_debug_message(
+                    "Skipping client output due to PAWN_LISTEN_ONLY_BYPASS token."
+                )
+            elif room().get_speak(matrix_room):
                 await self._tts_processor.process(matrix_room, event, response_text)
             else:
                 # Send back the answer
