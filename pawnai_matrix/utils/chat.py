@@ -12,6 +12,7 @@ from nio import (AsyncClient, ErrorResponse, MatrixRoom, MegolmEvent, Response,
 
 
 log = logging.getLogger(__name__)
+LISTEN_ONLY_BYPASS_TOKEN = "PAWN_LISTEN_ONLY_BYPASS"
 
 
 async def send_text_to_room(
@@ -23,7 +24,7 @@ async def send_text_to_room(
     reply_to_event_id: Optional[str] = None,
     reply_to_thread_id: Optional[str] = None,
     event=None,
-) -> Union[RoomSendResponse, ErrorResponse]:
+) -> Union[RoomSendResponse, ErrorResponse, None]:
     """Send text to a matrix room.
 
     Args:
@@ -45,6 +46,12 @@ async def send_text_to_room(
     Returns:
         A RoomSendResponse if the request was successful, else an ErrorResponse.
     """
+    if LISTEN_ONLY_BYPASS_TOKEN in message:
+        log.info(
+            "Skipping outbound Matrix message because listen-only bypass token was detected."
+        )
+        return None
+
     # Determine whether to ping room members or not
     msgtype = "m.notice" if notice else "m.text"
 
