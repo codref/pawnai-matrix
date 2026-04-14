@@ -5,6 +5,7 @@ from nio import (MatrixRoom)
 from sqlalchemy import select
 from pawnai_matrix.models import Expert, RoomConfiguration
 from pawnai_matrix.openai_client import OpenAIClient
+from pawnai_matrix.utils import get_thread_root_event_id
 
 log = logging.getLogger(__name__)
 
@@ -188,13 +189,25 @@ class Room:
     def get_session_id(self, matrix_room: MatrixRoom, alias: str) -> str | None:
         """Get the session id for a given alias, if present."""
         return self.get_sessions(matrix_room).get(alias)
+
+    def build_thread_session_id(self, matrix_room: MatrixRoom,
+                                thread_root_event_id: str) -> str:
+        """Build a deterministic thread-scoped session identifier."""
+        return f"{matrix_room.room_id}::thread::{thread_root_event_id}"
+
+    def resolve_session_id(self, matrix_room: MatrixRoom, event=None) -> str:
+        """Resolve the room session id, preferring thread-scoped sessions."""
+        thread_root_event_id = get_thread_root_event_id(event)
+        if thread_root_event_id:
+            return self.build_thread_session_id(matrix_room, thread_root_event_id)
+        return self.get_current_session_id(matrix_room)
     
-    def get_client(self, matrix_room: MatrixRoom):
+    def get_client(self, matrix_room: MatrixRoom, event=None):
         """Get client for the room, lazily initializing it on first access."""
         conf = self.get(matrix_room)
         if conf['client'] is None:
             conf['client'] = OpenAIClient(self.settings, matrix_room.room_id)
-        conf['client'].set_session_id(self.get_current_session_id(matrix_room))
+        conf['client'].set_session_id(self.resolve_session_id(matrix_room, event))
         return conf['client']
     
     def _set_and_save(self, matrix_room: MatrixRoom, key: str, value):

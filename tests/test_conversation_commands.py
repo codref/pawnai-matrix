@@ -11,10 +11,12 @@ from pawnai_matrix.commands.conversation_commands import (
 
 def _build_room_state(response_text: str, speak: bool):
     chat_engine = SimpleNamespace(chat=Mock(return_value=response_text))
+    room_client = SimpleNamespace(chat_engine=chat_engine)
+    get_client = Mock(return_value=room_client)
     return SimpleNamespace(
         get_users=lambda _: {},
         get_speak=lambda _: speak,
-        get_client=lambda _: SimpleNamespace(chat_engine=chat_engine),
+        get_client=get_client,
         get_echo=lambda _: False,
     )
 
@@ -91,3 +93,66 @@ class ConversationCommandsTests(unittest.IsolatedAsyncioTestCase):
         send_text_to_room_mock.assert_not_called()
         commands._tts_processor.process.assert_not_called()
 
+    async def test_chat_uses_thread_aware_client_binding_and_replies_in_thread(self):
+        matrix_room = SimpleNamespace(room_id="!room:example.com")
+        event = SimpleNamespace(
+            event_id="$event",
+            source={
+                "sender": "@user:example.com",
+                "content": {
+                    "m.relates_to": {
+                        "rel_type": "m.thread",
+                        "event_id": "$root",
+                        "m.in_reply_to": {"event_id": "$latest"},
+                    }
+                },
+            },
+        )
+        mock_client = SimpleNamespace(
+            room_typing=AsyncMock(),
+            room_redact=AsyncMock(),
+        )
+        mock_room = _build_room_state("threaded reply", speak=False)
+        thinking_response = SimpleNamespace(event_id="$thinking")
+
+        with patch(
+            "pawnai_matrix.commands.conversation_commands.client",
+            return_value=mock_client,
+        ), patch(
+            "pawnai_matrix.commands.conversation_commands.room",
+            return_value=mock_room,
+        ), patch(
+            "pawnai_matrix.commands.conversation_commands.react_to_event",
+            new=AsyncMock(),
+        ), patch(
+            "pawnai_matrix.commands.conversation_commands.send_text_to_room",
+            new=AsyncMock(),
+        ) as send_text_to_room_mock:
+            send_text_to_room_mock.side_effect = [thinking_response, None]
+            commands = ConversationCommands()
+            commands._tts_processor.process = AsyncMock()
+
+            response = await commands._chat("hello", matrix_room, event, replies=[])
+
+        self.assertEqual(response, "threaded reply")
+        mock_room.get_client.assert_called_once_with(matrix_room, event)
+        self.assertEqual(send_text_to_room_mock.await_count, 2)
+        send_text_to_room_mock.assert_any_await(
+            mock_client,
+            matrix_room.room_id,
+            "Thinking...",
+            notice=True,
+            event=event,
+        )
+        send_text_to_room_mock.assert_any_await(
+            mock_client,
+            matrix_room.room_id,
+            "threaded reply",
+            event=event,
+        )
+        mock_client.room_typing.assert_not_awaited()
+        mock_client.room_redact.assert_awaited_once_with(
+            matrix_room.room_id,
+            "$thinking",
+            reason="Response ready",
+        )

@@ -27,6 +27,7 @@ from pawnai_matrix.utils.chat import (
     react_to_event,
     get_related_reply_to_events,
     get_reply_body,
+    get_thread_root_event_id,
     download_event_resources,
 )
 
@@ -56,6 +57,7 @@ __all__ = [
     "react_to_event",
     "get_related_reply_to_events",
     "get_reply_body",
+    "get_thread_root_event_id",
     "download_event_resources",
     # Decorators
     "matrix_command",

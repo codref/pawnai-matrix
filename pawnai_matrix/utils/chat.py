@@ -66,11 +66,13 @@ async def send_text_to_room(
                                              extensions=['fenced_code'])
 
     try:
-        if event and "m.relates_to" in event.source['content'] and event.source[
-                'content']['m.relates_to']['rel_type'] == "m.thread":
-            reply_to_thread_id = event.source['content']['m.relates_to'][
-                'event_id']
-            reply_to_event_id = event.source['event_id']
+        if event:
+            thread_root_event_id = get_thread_root_event_id(event)
+            if thread_root_event_id:
+                reply_to_thread_id = thread_root_event_id
+                reply_to_event_id = getattr(event, "event_id", None) or event.source.get(
+                    "event_id"
+                )
 
         # reply to thread
         if reply_to_thread_id:
@@ -189,6 +191,21 @@ def get_reply_body(event):
             return event.body
         else:
             return ""
+
+
+def get_thread_root_event_id(event) -> Optional[str]:
+    """Return the Matrix thread root event ID for a threaded event."""
+    source = getattr(event, "source", {}) or {}
+    content = source.get("content", {}) or {}
+    relates_to = content.get("m.relates_to", {}) or {}
+
+    if relates_to.get("rel_type") != "m.thread":
+        return None
+
+    event_id = relates_to.get("event_id")
+    if isinstance(event_id, str) and event_id:
+        return event_id
+    return None
 
 
 
