@@ -1,17 +1,11 @@
 from nio import MatrixRoom, RoomMessageText
 
-from pawnai_matrix.utils import (
-    get_reply_body,
-    get_thread_root_event_id,
-    react_to_event,
-    send_text_to_room,
-)
+from pawnai_matrix.utils import send_text_to_room, react_to_event, get_reply_body
 from pawnai_matrix import client, room, set_debug_message
 from pawnai_matrix.processors.tts_processor import TTSProcessor
 
 LISTEN_ONLY_BYPASS_TOKEN = "PAWN_LISTEN_ONLY_BYPASS"
 THINKING_REACTION = "⋯"
-THREAD_THINKING_MESSAGE = "Thinking..."
 
 
 class ConversationCommands:
@@ -32,32 +26,6 @@ class ConversationCommands:
         # This should be the last command to execute as it's a generic conversation entrypoint
         return await self._chat(command, matrix_room, event, replies)
 
-    async def _start_thinking_indicator(self, matrix_room: MatrixRoom, event):
-        if get_thread_root_event_id(event):
-            return await send_text_to_room(
-                client(),
-                matrix_room.room_id,
-                THREAD_THINKING_MESSAGE,
-                notice=True,
-                event=event,
-            )
-
-        await client().room_typing(matrix_room.room_id, True, timeout=120000)
-        return None
-
-    async def _stop_thinking_indicator(self, matrix_room: MatrixRoom, indicator_response):
-        if indicator_response is not None:
-            indicator_event_id = getattr(indicator_response, "event_id", None)
-            if indicator_event_id:
-                await client().room_redact(
-                    matrix_room.room_id,
-                    indicator_event_id,
-                    reason="Response ready",
-                )
-            return
-
-        await client().room_typing(matrix_room.room_id, False)
-
     async def _chat(self, message: str, matrix_room: MatrixRoom, event,
                     replies: list):
 
@@ -68,9 +36,9 @@ class ConversationCommands:
             THINKING_REACTION,
         )
 
-        # Typing notifications are room-scoped in Matrix, so threads get a local
-        # placeholder message instead of lighting up the main timeline.
-        thinking_indicator = await self._start_thinking_indicator(matrix_room, event)
+        # Send a start typing event, with a fixed timeout
+        # TODO estimate the typing duration or stream back the reply!
+        await client().room_typing(matrix_room.room_id, True, timeout=120000)
 
         try:
             replies_body = ""
@@ -125,6 +93,6 @@ class ConversationCommands:
             set_debug_message(f"Cannot generate a response:\n{e}")
 
         finally:
-            await self._stop_thinking_indicator(matrix_room, thinking_indicator)
+            await client().room_typing(matrix_room.room_id, False)
 
         return True

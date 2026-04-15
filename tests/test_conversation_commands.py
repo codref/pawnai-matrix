@@ -108,12 +108,8 @@ class ConversationCommandsTests(unittest.IsolatedAsyncioTestCase):
                 },
             },
         )
-        mock_client = SimpleNamespace(
-            room_typing=AsyncMock(),
-            room_redact=AsyncMock(),
-        )
+        mock_client = SimpleNamespace(room_typing=AsyncMock())
         mock_room = _build_room_state("threaded reply", speak=False)
-        thinking_response = SimpleNamespace(event_id="$thinking")
 
         with patch(
             "pawnai_matrix.commands.conversation_commands.client",
@@ -128,7 +124,6 @@ class ConversationCommandsTests(unittest.IsolatedAsyncioTestCase):
             "pawnai_matrix.commands.conversation_commands.send_text_to_room",
             new=AsyncMock(),
         ) as send_text_to_room_mock:
-            send_text_to_room_mock.side_effect = [thinking_response, None]
             commands = ConversationCommands()
             commands._tts_processor.process = AsyncMock()
 
@@ -136,23 +131,9 @@ class ConversationCommandsTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(response, "threaded reply")
         mock_room.get_client.assert_called_once_with(matrix_room, event)
-        self.assertEqual(send_text_to_room_mock.await_count, 2)
-        send_text_to_room_mock.assert_any_await(
-            mock_client,
-            matrix_room.room_id,
-            "Thinking...",
-            notice=True,
-            event=event,
-        )
-        send_text_to_room_mock.assert_any_await(
+        send_text_to_room_mock.assert_awaited_once_with(
             mock_client,
             matrix_room.room_id,
             "threaded reply",
             event=event,
-        )
-        mock_client.room_typing.assert_not_awaited()
-        mock_client.room_redact.assert_awaited_once_with(
-            matrix_room.room_id,
-            "$thinking",
-            reason="Response ready",
         )
