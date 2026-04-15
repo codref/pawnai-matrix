@@ -2,7 +2,7 @@ name: Deploy to server
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 env:
   DEPLOY_PATH: /opt/pawnai-matrix
@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Pull latest code
-        run: git -C ${{ env.DEPLOY_PATH }} pull origin main
+        run: git -C ${{ env.DEPLOY_PATH }} pull origin master
 
       - name: Build bot image
         run: docker compose -f ${{ env.DEPLOY_PATH }}/docker/docker-compose.yaml build bob
